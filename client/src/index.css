@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 🎨 Custom Colors */
+@theme {
+  --color-bg-light: #f3f4f6;
+  --color-bg-dark: #101828;
+  --color-bg-secondary-light: #d1d5dc;
+  --color-bg-secondary-dark: #4a5565;
+  --color-bg-g-dark: #0b0f19;
+  --color-bg-g-light: #1a2338;
+  --color-cozy-green: #7fbe80; /* Muted soft green */
+  --color-cozy-yellow: #e6c767; /* Rich golden yellow */
+  --color-cozy-red: #e27d79; /* Soft coral red */
+  --color-cozy-purple: #a885e2; /* Warm violet purple */
+  --color-cozy-orange: #e0a16b; /* Cozy burnt orange */
+  --color-cozy-blue: #87add2;
+  --color-cozy-gray: #f0f0f0;
+  --color-bg-dark: #1e293b; /* Dark background */
+  --color-text-light: #e2e8f0; /* Soft white text */
+  --color-button-hover: #1d4ed8;
+  --color-overlay-dark: rgba(30, 41, 59, 0.6); /* Soft overlay effect */
+}
+
+/* 📝 Custom Fonts */
+body {
+  font-family: "Nunito", sans-serif;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Poppins", sans-serif;
+}
+
+/* 🎨 Buttons */
+.btn-primary {
+  background-color: var(--color-cozy-blue);
+  color: white;
+  border: 1px solid var(--color-cozy-gray);
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-button-hover);
+}
+
+.btn-primary-2 {
+  background-color: #000000;
+  color: white;
+  border: 1px solid var(--color-cozy-gray);
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-primary-2:hover {
+  background-color: var(--color-button-hover);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid var(--color-text-light);
+  color: var(--color-text-light);
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-cozy-gray);
+  color: var(--color-bg-dark);
+}
