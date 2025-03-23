@@ -4,9 +4,11 @@ import cors from "cors";
 import User from "./models/User.js"; // Import the User model
 import Journal from "./models/journal.js"; // Import the Journal model
 
+import serverless from "serverless-http";
+
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: "https://cozyminds.vercel.app/" }));
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -367,3 +369,5 @@ mongoose
     });
   })
   .catch((error) => console.log(error));
+
+// export const handler = serverless(app); // ✅ export this
