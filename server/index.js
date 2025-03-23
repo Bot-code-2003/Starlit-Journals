@@ -363,11 +363,7 @@ mongoose
   .connect(
     "mongodb+srv://madisettydharmadeep:cozyminds@cozyminds.yth43.mongodb.net/?retryWrites=true&w=majority&appName=cozyminds"
   )
-  .then(() => {
-    app.listen(3000, () => {
-      console.log("Server is running on port 3000 ");
-    });
-  })
+  .then(() => console.log("MongoDB connected"))
   .catch((error) => console.log(error));
 
 // export const handler = serverless(app); // ✅ export this
