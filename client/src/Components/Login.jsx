@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { Eye, EyeOff, Sun, Moon, ArrowRight, Mail, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDarkMode } from "../context/ThemeContext";
+import axios from "axios";
 const Login = () => {
+  const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });
+
   // const [darkMode, setdarkMode] = useState(false);
   const { darkMode, setDarkMode } = useDarkMode();
-
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -18,17 +21,30 @@ const Login = () => {
     setDarkMode(!darkMode);
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     console.log("Login:", { email: loginEmail, password: loginPassword });
 
-    const button = e.target.querySelector('button[type="submit"]');
-    const originalText = button.innerHTML;
-    button.innerHTML = "Success!";
+    try {
+      const response = await API.post("/login", {
+        email: loginEmail,
+        password: loginPassword,
+      });
 
-    setTimeout(() => {
-      button.innerHTML = originalText;
-    }, 2000);
+      console.log("Login successful:", response.data);
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: response.data.user._id, // Assuming backend returns the user object
+          nickname: response.data.user.nickname,
+          email: response.data.user.email,
+        })
+      );
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (

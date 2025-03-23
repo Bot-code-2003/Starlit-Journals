@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 
 import { useState } from "react";
 import {
@@ -13,10 +14,11 @@ import {
   Calendar,
   ChevronDown,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDarkMode } from "../context/ThemeContext";
 
 const Signup = () => {
+  const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });
   // const [reversedDarkMode, setreversedDarkMode] = useState(true);
   const { darkMode, setDarkMode } = useDarkMode();
   const reversedDarkMode = !darkMode;
@@ -33,24 +35,44 @@ const Signup = () => {
     setDarkMode(!darkMode);
   };
 
-  const handleSignupSubmit = (e) => {
+  const navigate = useNavigate();
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    console.log("Signup:", {
-      nickname,
-      email,
-      password,
-      age,
-      gender,
-      subscribe,
-    });
 
     const button = e.target.querySelector('button[type="submit"]');
-    const originalText = button.innerHTML;
-    button.innerHTML = "Account Created!";
+    button.innerHTML = "Creating Account...";
 
-    setTimeout(() => {
-      button.innerHTML = originalText;
-    }, 2000);
+    try {
+      const response = await API.post("/signup", {
+        nickname,
+        email,
+        password, // Sent to backend but NOT stored in local storage
+        age,
+        gender,
+        subscribe,
+      });
+
+      console.log("Signup successful:", response.data);
+
+      // **Store user data in local storage (without password)**
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: response.data.user._id, // Assuming backend returns the user object
+          nickname: response.data.user.nickname,
+          email: response.data.user.email,
+        })
+      );
+
+      // Redirect immediately after signup
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(
+        "Signup Error:",
+        error.response ? error.response.data : error.message
+      );
+      button.innerHTML = "Error! Try Again";
+    }
   };
 
   return (
@@ -239,8 +261,6 @@ const Signup = () => {
                 </option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
-                <option value="non-binary">Non-binary</option>
-                <option value="prefer-not-to-say">Prefer not to say</option>
               </select>
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 opacity-70">
                 <User size={18} />
