@@ -364,8 +364,10 @@ mongoose
     "mongodb+srv://madisettydharmadeep:cozyminds@cozyminds.yth43.mongodb.net/?retryWrites=true&w=majority&appName=cozyminds"
   )
   .then(() => {
-    console.log("Connected to MongoDB");
+    app.listen(3000, () => {
+      console.log("Server is running on port 3000 ");
+    });
   })
   .catch((error) => console.log(error));
 
-export default serverless(app);
+// export const handler = serverless(app); // ✅ export this
