@@ -357,7 +357,10 @@ app.delete("/user/:id", async (req, res) => {
 
 // Connect to MongoDB and start the server
 mongoose
-  .connect("mongodb://localhost:27017/CozyMind")
+  // .connect("mongodb://localhost:27017/CozyMind")
+  .connect(
+    "mongodb+srv://madisettydharmadeep:cozyminds@cozyminds.yth43.mongodb.net/?retryWrites=true&w=majority&appName=cozyminds"
+  )
   .then(() => {
     app.listen(3000, () => {
       console.log("Server is running on port 3000 ");
