@@ -366,4 +366,5 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((error) => console.log(error));
 
+export default serverless(app);
 // export const handler = serverless(app); // ✅ export this
