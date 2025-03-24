@@ -155,7 +155,7 @@ const LandingPage = () => {
           Cozy Minds
         </h1>
         <p className="mt-4 text-lg md:text-xl opacity-70 font-medium max-w-xl mx-auto">
-          Clarity starts here—sharp and simple. A minimalist approach to mental
+          Clarity starts here sharp and simple. A minimalist approach to mental
           wellness.
         </p>
         <div className="mt-10 flex justify-center">
@@ -227,7 +227,7 @@ const LandingPage = () => {
               </div>
               <h2 className="text-3xl font-semibold">Daily Spark</h2>
               <p className="mt-4 text-base opacity-80 font-medium">
-                One bold email daily—your pick: Peace, Productivity,
+                One bold email daily your pick: Peace, Productivity,
                 Mindfulness, or Stress Relief.
               </p>
             </div>
@@ -270,7 +270,7 @@ const LandingPage = () => {
               </div>
               <h2 className="text-3xl font-semibold">Mood Grid</h2>
               <p className="mt-4 text-base opacity-80 font-medium">
-                Track your pulse—see what shapes your calm and take control of
+                Track your pulse see what shapes your calm and take control of
                 your mental landscape.
               </p>
             </div>
@@ -378,7 +378,7 @@ const LandingPage = () => {
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none opacity-70"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="email"
                 value={email}

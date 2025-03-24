@@ -695,7 +695,7 @@ const JournalEntries = () => {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="absolute top-2 right-2 flex space-x-1">
+                    <div className="absolute bottom-4 right-2 flex space-x-1">
                       {/* <Link
                         to={`/journal/${entry._id}`}
                         className="p-1 hover:text-[#F4A261] transition-colors"

@@ -58,7 +58,7 @@ const Dashboard = () => {
       color: "#83C5BE",
     },
     {
-      emoji: "☹️",
+      emoji: "😔",
       name: "Sad",
       description: "Feeling down or blue",
       color: "#7A82AB",

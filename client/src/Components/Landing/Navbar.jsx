@@ -13,6 +13,25 @@ const Navbar = ({ isScrolled, darkMode, setDarkMode, user }) => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const navigationItems = [
+    {
+      name: "Home",
+      path: "/",
+    },
+    {
+      name: "Features",
+      path: "/features",
+    },
+    {
+      name: "Pricing",
+      path: "/pricing",
+    },
+    {
+      name: "About",
+      path: "/about",
+    },
+  ];
+
   return (
     <>
       <nav
@@ -46,13 +65,14 @@ const Navbar = ({ isScrolled, darkMode, setDarkMode, user }) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
-            {["Home", "Features", "Pricing", "About"].map((item) => (
-              <button
-                key={item}
+            {navigationItems.map((item) => (
+              <Link
+                to={item.path}
+                key={item.name}
                 className="font-medium hover:text-[#F4A261] transition-colors"
               >
-                {item}
-              </button>
+                {item.name}
+              </Link>
             ))}
           </div>
 
@@ -112,14 +132,15 @@ const Navbar = ({ isScrolled, darkMode, setDarkMode, user }) => {
         {isMobileMenuOpen && (
           <div className="md:hidden px-6 py-4 bg-opacity-90 backdrop-blur-sm">
             <div className="flex flex-col space-y-4">
-              {["Home", "Features", "Pricing", "About"].map((item) => (
-                <button
+              {navigationItems.map((item) => (
+                <Link
+                  to={item.path}
                   key={item}
                   className="font-medium hover:text-[#F4A261] transition-colors text-left"
                   onClick={toggleMobileMenu}
                 >
-                  {item}
-                </button>
+                  {item.name}
+                </Link>
               ))}
 
               {/* Mobile User Actions */}

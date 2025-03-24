@@ -33,14 +33,14 @@ const JournalingAlt = () => {
   const titleRef = useRef(null);
 
   const moods = [
-    { emoji: "😊", name: "Happy", color: "#FFB17A" },
+    { emoji: "😄", name: "Happy", color: "#FFB17A" },
     { emoji: "😐", name: "Neutral", color: "#83C5BE" },
     { emoji: "😔", name: "Sad", color: "#7A82AB" },
-    { emoji: "😤", name: "Angry", color: "#E07A5F" },
-    { emoji: "😟", name: "Anxious", color: "#BC96E6" },
-    { emoji: "😴", name: "Tired", color: "#8D99AE" },
+    { emoji: "😡", name: "Angry", color: "#E07A5F" },
+    { emoji: "😰", name: "Anxious", color: "#BC96E6" },
+    { emoji: "🥱", name: "Tired", color: "#8D99AE" },
     { emoji: "🤔", name: "Reflective", color: "#81B29A" },
-    { emoji: "🎉", name: "Excited", color: "#F9C74F" },
+    { emoji: "🥳", name: "Excited", color: "#F9C74F" },
   ];
 
   const availableTags = [
@@ -204,8 +204,9 @@ const JournalingAlt = () => {
           </div>
         )}
 
-        <div className="mb-8 flex justify-between items-center">
+        <div className="mb-4 flex justify-between items-center">
           <div className="flex space-x-4">
+            {/** Mood Toggle */}
             <div className="relative">
               <button
                 onClick={() => setShowMoodSelector(!showMoodSelector)}
@@ -233,40 +234,8 @@ const JournalingAlt = () => {
                   <ChevronDown size={16} className="ml-2 opacity-70" />
                 )}
               </button>
-              {showMoodSelector && (
-                <div
-                  className={`absolute top-full left-0 mt-2 w-72  ${
-                    darkMode
-                      ? "bg-[#2A2A2A] border-[#333333]"
-                      : "bg-white border-[#DDDDDD]"
-                  } border shadow-lg z-10 animate-fade-in`}
-                >
-                  <div className="grid grid-cols-4 p-3 gap-3">
-                    {moods.map((mood) => (
-                      <button
-                        key={mood.name}
-                        onClick={() => {
-                          setSelectedMood(mood.name);
-                          setShowMoodSelector(false);
-                        }}
-                        className={`p-2 text-xl  ${
-                          selectedMood === mood.name
-                            ? darkMode
-                              ? "bg-[#333333]"
-                              : "bg-[#F8F1E9]"
-                            : ""
-                        } hover:${
-                          darkMode ? "bg-[#333333]" : "bg-[#F8F1E9]"
-                        } transition-colors duration-150`}
-                      >
-                        {mood.emoji}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
-
+            {/** Tags Toggle */}
             <div className="relative">
               <button
                 onClick={() => setShowTagSelector(!showTagSelector)}
@@ -291,40 +260,87 @@ const JournalingAlt = () => {
                   <ChevronDown size={16} className="ml-2 opacity-70" />
                 )}
               </button>
-              {showTagSelector && (
-                <div
-                  className={`absolute top-full left-0 mt-2 w-72  ${
-                    darkMode
-                      ? "bg-[#2A2A2A] border-[#333333]"
-                      : "bg-white border-[#DDDDDD]"
-                  } border shadow-lg z-10 animate-fade-in`}
-                >
-                  <div className="p-3 flex flex-wrap gap-2">
-                    {availableTags.map((tag) => (
-                      <button
-                        key={tag}
-                        onClick={() => toggleTag(tag)}
-                        className={`px-3 py-1 text-sm  ${
-                          selectedTags.includes(tag)
-                            ? "bg-[#F4A261] text-[#1A1A1A]"
-                            : darkMode
-                            ? "bg-[#333333] hover:bg-[#444444]"
-                            : "bg-[#EEEEEE] hover:bg-[#DDDDDD]"
-                        } transition-colors duration-150`}
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
-          <div className="text-sm opacity-70">
-            {wordCount} {wordCount === 1 ? "word" : "words"}
+
+          <div
+            className={`flex items-center px-4 py-2  ${
+              darkMode
+                ? "bg-[#2A2A2A] hover:bg-[#333333]"
+                : "bg-white hover:bg-[#F8F1E9]"
+            } border ${
+              darkMode ? "border-[#333333]" : "border-[#DDDDDD]"
+            } transition-colors duration-200 shadow-sm`}
+          >
+            <span className="font-medium text-sm">
+              {" "}
+              {wordCount} {wordCount === 1 ? "word" : "words"}{" "}
+            </span>
           </div>
         </div>
 
+        {/** Mood options */}
+        {showMoodSelector && (
+          <div
+            className={`relative mb-4  ${
+              darkMode
+                ? "bg-[#2A2A2A] border-[#333333]"
+                : "bg-white border-[#DDDDDD]"
+            } border shadow-lg z-10 animate-fade-in`}
+          >
+            <div className="grid grid-cols-4 p-3 gap-3">
+              {moods.map((mood) => (
+                <button
+                  key={mood.name}
+                  onClick={() => {
+                    setSelectedMood(mood.name);
+                    setShowMoodSelector(false);
+                  }}
+                  className={`p-2 text-xl  ${
+                    selectedMood === mood.name
+                      ? darkMode
+                        ? "bg-[#333333]"
+                        : "bg-[#F8F1E9]"
+                      : ""
+                  } hover:${
+                    darkMode ? "bg-[#333333]" : "bg-[#F8F1E9]"
+                  } transition-colors duration-150`}
+                >
+                  {mood.emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/** Tag options */}
+        {showTagSelector && (
+          <div
+            className={`relative mb-4  ${
+              darkMode
+                ? "bg-[#2A2A2A] border-[#333333]"
+                : "bg-white border-[#DDDDDD]"
+            } border shadow-lg z-10 animate-fade-in`}
+          >
+            <div className="p-3 flex flex-wrap gap-2">
+              {availableTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`px-3 py-1 text-sm  ${
+                    selectedTags.includes(tag)
+                      ? "bg-[#F4A261] text-[#1A1A1A]"
+                      : darkMode
+                      ? "bg-[#333333] hover:bg-[#444444]"
+                      : "bg-[#EEEEEE] hover:bg-[#DDDDDD]"
+                  } transition-colors duration-150`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <div
           className={`${
             darkMode
