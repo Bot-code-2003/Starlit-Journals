@@ -8,7 +8,7 @@ import serverless from "serverless-http";
 
 const app = express();
 
-app.use(cors({ origin: "https://cozyminds.vercel.app/" }));
+app.use(cors({ origin: "https://cozyminds.vercel.app" }));
 // app.use(cors());
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
