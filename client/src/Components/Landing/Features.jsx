@@ -2,93 +2,130 @@ import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import { useDarkMode } from "../../context/ThemeContext";
 import {
-  PenSquare,
-  BarChart2,
   Mail,
-  Calendar,
-  Laugh,
+  Coffee,
+  Zap,
+  Brain,
+  BarChart2,
+  TrendingUp,
+  Search,
+  Star,
   MessageSquare,
   Sliders,
-  Brain,
 } from "lucide-react";
 
 const Features = () => {
   const { darkMode, setDarkMode } = useDarkMode();
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState(null);
+
   const features = [
     {
-      icon: (
-        <PenSquare
-          size={40}
-          className="text-[#FFD7BA] dark:text-[#F8F1E9] mb-4"
-        />
-      ),
-      h1: "Daily Journaling",
-      p: "Scribble your thoughts daily and snag cool monthly recaps!",
+      icon: <Mail size={28} className="opacity-80" />,
+      label: "DAILY INSIGHT",
+      h1: "Daily Spark",
+      p: "One bold email daily your pick: Peace, Productivity, Mindfulness, or Stress Relief.",
+      list: [
+        {
+          icon: <Coffee size={18} className="mt-0.5 opacity-70" />,
+          text: "Quote to ignite your day",
+        },
+        {
+          icon: <Zap size={18} className="mt-0.5 opacity-70" />,
+          text: "Step to shift your vibe",
+        },
+        {
+          icon: <Brain size={18} className="mt-0.5 opacity-70" />,
+          text: "Thought to hold close",
+        },
+      ],
+      bgLight: "#FFD7BA", // Peach for light mode
+      bgDark: "#3A2E2A", // Cozy brown for dark mode
+      labelBgLight: "#1A1A1A",
+      labelTextLight: "white",
+      labelBgDark: "#F4A261",
+      labelTextDark: "#1A1A1A",
     },
     {
-      icon: (
-        <BarChart2
-          size={40}
-          className="text-[#FFD7BA] dark:text-[#F8F1E9] mb-4"
-        />
-      ),
-      h1: "Mood Dashboard",
-      p: "Track your vibes with funky graphs and smart tips!",
+      icon: <BarChart2 size={28} className="opacity-80" />,
+      label: "ANALYTICS",
+      h1: "Mood Grid",
+      p: "Track your pulse see what shapes your calm and take control of your mental landscape.",
+      list: [
+        {
+          icon: <TrendingUp size={18} className="mt-0.5 opacity-70" />,
+          text: "Map your emotional flow",
+        },
+        {
+          icon: <Search size={18} className="mt-0.5 opacity-70" />,
+          text: "Pinpoint your triggers",
+        },
+        {
+          icon: <Star size={18} className="mt-0.5 opacity-70" />,
+          text: "Own your mental space",
+        },
+      ],
+      bgLight: "#A9D6E5", // Pastel blue for light mode
+      bgDark: "#2A3A36", // Deep teal for dark mode
+      labelBgLight: "#1A1A1A",
+      labelTextLight: "white",
+      labelBgDark: "#61A5C2",
+      labelTextDark: "#1A1A1A",
     },
     {
-      icon: (
-        <Mail size={40} className="text-[#FFD7BA] dark:text-[#F8F1E9] mb-4" />
-      ),
-      h1: "Custom Emails",
-      p: "Get quirky emails tailored just for you, straight to your inbox!",
-    },
-    {
-      icon: (
-        <Calendar
-          size={40}
-          className="text-[#FFD7BA] dark:text-[#F8F1E9] mb-4"
-        />
-      ),
-      h1: "Progress Updates",
-      p: "Catch quarterly and yearly updates to see your epic journey!",
-    },
-    {
-      icon: (
-        <Laugh size={40} className="text-[#FFD7BA] dark:text-[#F8F1E9] mb-4" />
-      ),
-      h1: "Funny Stories",
-      p: "Laugh at a silly story mirroring your monthly adventures!",
-    },
-    {
-      icon: (
-        <MessageSquare
-          size={40}
-          className="text-[#FFD7BA] dark:text-[#F8F1E9] mb-4"
-        />
-      ),
+      icon: <MessageSquare size={28} className="opacity-80" />,
+      label: "COMPANION",
       h1: "AI Chat Friends",
       p: "Chat with AI buddies who feel like your best pals!",
+      list: [
+        {
+          icon: <MessageSquare size={18} className="mt-0.5 opacity-70" />,
+          text: "Always there to listen",
+        },
+        {
+          icon: <Brain size={18} className="mt-0.5 opacity-70" />,
+          text: "Tailored conversations",
+        },
+        {
+          icon: <Star size={18} className="mt-0.5 opacity-70" />,
+          text: "Boost your mood",
+        },
+      ],
+      bgLight: "#E8D9F1", // Pastel lavender for light mode
+      bgDark: "#3A2E3F", // Soft purple for dark mode
+      labelBgLight: "#1A1A1A",
+      labelTextLight: "white",
+      labelBgDark: "#A78BFA",
+      labelTextDark: "#1A1A1A",
     },
     {
-      icon: (
-        <Sliders
-          size={40}
-          className="text-[#FFD7BA] dark:text-[#F8F1E9] mb-4"
-        />
-      ),
-      h1: "Enhanced Customization",
-      p: "Tweak emails and more with your own funky style!",
-    },
-    {
-      icon: (
-        <Brain size={40} className="text-[#FFD7BA] dark:text-[#F8F1E9] mb-4" />
-      ),
+      icon: <Brain size={28} className="opacity-80" />,
+      label: "INSIGHTS",
       h1: "Smart Recommendations",
       p: "Unlock extra clever tips to level up your experience!",
+      list: [
+        {
+          icon: <Sliders size={18} className="mt-0.5 opacity-70" />,
+          text: "Personalized suggestions",
+        },
+        {
+          icon: <TrendingUp size={18} className="mt-0.5 opacity-70" />,
+          text: "Optimize your journey",
+        },
+        {
+          icon: <Star size={18} className="mt-0.5 opacity-70" />,
+          text: "Stay ahead with insights",
+        },
+      ],
+      bgLight: "#F1E8D9", // Pastel beige for light mode
+      bgDark: "#3F3A2E", // Warm taupe for dark mode
+      labelBgLight: "#1A1A1A",
+      labelTextLight: "white",
+      labelBgDark: "#D4C4A1",
+      labelTextDark: "#1A1A1A",
     },
   ];
+
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     console.log("Stored User:", storedUser);
@@ -106,65 +143,8 @@ const Features = () => {
   }, []);
 
   return (
-    <div className="min-h-screen dark:bg-[#1A1A1A] dark:text-[#F8F1E9] bg-[#F8F1E9] text-[#1A1A1A] font-sans flex flex-col items-center p-6 sm:p-12 relative overflow-hidden transition-colors duration-300">
+    <div>
       {/* Background Gradient */}
-      <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#FFD7BA] to-transparent opacity-70 dark:opacity-20 transition-opacity duration-300"></div>
-
-      {/* Decorative SVG Elements */}
-      <div className="absolute top-20 left-10 opacity-20 dark:opacity-10">
-        <svg
-          width="120"
-          height="120"
-          viewBox="0 0 120 120"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect
-            x="20"
-            y="20"
-            width="80"
-            height="80"
-            stroke="#FFD7BA"
-            strokeWidth="3"
-            className="dark:stroke-[#F8F1E9]"
-          />
-          <rect
-            x="40"
-            y="40"
-            width="40"
-            height="40"
-            stroke="#FFD7BA"
-            strokeWidth="3"
-            className="dark:stroke-[#F8F1E9]"
-          />
-        </svg>
-      </div>
-      <div className="absolute bottom-20 right-10 opacity-20 dark:opacity-10">
-        <svg
-          width="150"
-          height="150"
-          viewBox="0 0 150 150"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle
-            cx="75"
-            cy="75"
-            r="50"
-            stroke="#FFD7BA"
-            strokeWidth="3"
-            className="dark:stroke-[#F8F1E9]"
-          />
-          <circle
-            cx="75"
-            cy="75"
-            r="25"
-            stroke="#FFD7BA"
-            strokeWidth="3"
-            className="dark:stroke-[#F8F1E9]"
-          />
-        </svg>
-      </div>
 
       {/* Navigation */}
       <Navbar
@@ -175,20 +155,51 @@ const Features = () => {
       />
 
       {/* Features Section */}
-      <section className="relative z-10 w-full max-w-7xl mt-20">
-        <h1 className="text-5xl sm:text-6xl font-extrabold text-center mb-16 bg-gradient-to-r from-[#FFD7BA] to-[#1A1A1A] dark:to-[#F8F1E9] bg-clip-text text-transparent ">
-          Awesome Features
+      <section className="relative z-10 w-full max-w-6xl mt-20">
+        <h1 className="text-5xl sm:text-6xl font-extrabold text-center mb-12 bg-gradient-to-r from-[#FFD7BA] to-[#1A1A1A] dark:to-[#F8F1E9] bg-clip-text text-transparent">
+          Standout Features
         </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Feature 1 */}
+
+        {/* 2-in-a-row Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white dark:bg-[#2A2A2A] p-6 border-4 border-[#FFD7BA] dark:border-[#F8F1E9] shadow-xl hover:scale-105 transition-transform duration-300"
+              className="p-8 flex flex-col justify-between shadow-sharp hover:translate-y-[-4px] transition-all duration-300"
+              style={{
+                backgroundColor: darkMode ? feature.bgDark : feature.bgLight,
+              }}
             >
-              {feature.icon}
-              <h2 className="text-2xl font-bold mb-2">{feature.h1}</h2>
-              <p className="text-sm opacity-90">{feature.p}</p>
+              <div>
+                <div className="flex justify-between items-start mb-6">
+                  {feature.icon}
+                  <div
+                    className={`px-2 py-1 text-xs font-medium`}
+                    style={{
+                      backgroundColor: darkMode
+                        ? feature.labelBgDark
+                        : feature.labelBgLight,
+                      color: darkMode
+                        ? feature.labelTextDark
+                        : feature.labelTextLight,
+                    }}
+                  >
+                    {feature.label}
+                  </div>
+                </div>
+                <h2 className="text-3xl font-semibold">{feature.h1}</h2>
+                <p className="mt-4 text-base opacity-80 font-medium">
+                  {feature.p}
+                </p>
+              </div>
+              <ul className="mt-8 space-y-4 font-medium">
+                {feature.list.map((item, idx) => (
+                  <li key={idx} className="flex items-start space-x-3">
+                    {item.icon}
+                    <span>{item.text}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>

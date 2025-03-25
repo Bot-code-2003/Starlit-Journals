@@ -21,6 +21,7 @@ import Navbar from "./Navbar";
 import { useDarkMode } from "../../context/ThemeContext";
 import Footer from "./Footer";
 import Testimonials from "./Testimonials";
+import Features from "./Features";
 
 const LandingPage = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -202,94 +203,8 @@ const LandingPage = () => {
           ))}
         </div>
 
-        {/* Feature Row */}
-        <div className="flex flex-col md:flex-row gap-10 justify-center items-stretch w-full">
-          {/* Feature 1: Daily Motivational Email */}
-          <div
-            className={`w-full md:w-1/2 h-auto ${
-              darkMode
-                ? "bg-[#2A2A2A]"
-                : "bg-gradient-to-br from-[#FFD7BA] to-[#F4A261]"
-            } p-8 flex flex-col justify-between shadow-sharp hover:translate-y-[-4px] transition-all duration-300`}
-          >
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <Mail size={28} className="opacity-80" />
-                <div
-                  className={`px-2 py-1 text-xs font-medium ${
-                    darkMode
-                      ? "bg-[#F4A261] text-[#1A1A1A]"
-                      : "bg-[#1A1A1A] text-white"
-                  }`}
-                >
-                  DAILY INSIGHT
-                </div>
-              </div>
-              <h2 className="text-3xl font-semibold">Daily Spark</h2>
-              <p className="mt-4 text-base opacity-80 font-medium">
-                One bold email daily your pick: Peace, Productivity,
-                Mindfulness, or Stress Relief.
-              </p>
-            </div>
-            <ul className="mt-8 space-y-4 font-medium">
-              <li className="flex items-start space-x-3">
-                <Coffee size={18} className="mt-0.5 opacity-70" />
-                <span>Quote to ignite your day</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Zap size={18} className="mt-0.5 opacity-70" />
-                <span>Step to shift your vibe</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Brain size={18} className="mt-0.5 opacity-70" />
-                <span>Thought to hold close</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Feature 2: Mood Tracking Dashboard */}
-          <div
-            className={`w-full md:w-1/2 h-auto ${
-              darkMode
-                ? "bg-[#2A2A2A]"
-                : "bg-gradient-to-br from-[#A9D6E5] to-[#61A5C2]"
-            } p-8 flex flex-col justify-between shadow-sharp hover:translate-y-[-4px] transition-all duration-300`}
-          >
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <BarChart2 size={28} className="opacity-80" />
-                <div
-                  className={`px-2 py-1 text-xs font-medium ${
-                    darkMode
-                      ? "bg-[#61A5C2] text-[#1A1A1A]"
-                      : "bg-[#1A1A1A] text-white"
-                  }`}
-                >
-                  ANALYTICS
-                </div>
-              </div>
-              <h2 className="text-3xl font-semibold">Mood Grid</h2>
-              <p className="mt-4 text-base opacity-80 font-medium">
-                Track your pulse see what shapes your calm and take control of
-                your mental landscape.
-              </p>
-            </div>
-            <ul className="mt-8 space-y-4 font-medium">
-              <li className="flex items-start space-x-3">
-                <TrendingUp size={18} className="mt-0.5 opacity-70" />
-                <span>Map your emotional flow</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Search size={18} className="mt-0.5 opacity-70" />
-                <span>Pinpoint your triggers</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Star size={18} className="mt-0.5 opacity-70" />
-                <span>Own your mental space</span>
-              </li>
-            </ul>
-          </div>
-        </div>
+        {/* Features Section */}
+        <Features />
 
         {/* How It Works Section */}
         <div className="w-full py-12">

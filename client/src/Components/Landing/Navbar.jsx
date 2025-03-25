@@ -14,22 +14,18 @@ const Navbar = ({ isScrolled, darkMode, setDarkMode, user }) => {
   };
 
   const navigationItems = [
-    {
-      name: "Home",
-      path: "/",
-    },
-    {
-      name: "Features",
-      path: "/features",
-    },
-    {
-      name: "Pricing",
-      path: "/pricing",
-    },
-    {
-      name: "About",
-      path: "/about",
-    },
+    // {
+    //   name: "Home",
+    //   path: "/",
+    // },
+    // {
+    //   name: "Pricing",
+    //   path: "/pricing",
+    // },
+    // {
+    //   name: "About",
+    //   path: "/about",
+    // },
   ];
 
   return (
