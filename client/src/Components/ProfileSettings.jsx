@@ -21,6 +21,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDarkMode } from "../context/ThemeContext";
 
 const ProfileSettings = () => {
+  const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });
   const { darkMode, setDarkMode } = useDarkMode();
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -208,7 +209,7 @@ const ProfileSettings = () => {
       )
     ) {
       try {
-        await axios.delete(`http://localhost:3000/user/${userData.id}`);
+        await API.delete(`/user/${userData.id}`);
         localStorage.removeItem("user");
         navigate("/");
       } catch (err) {
