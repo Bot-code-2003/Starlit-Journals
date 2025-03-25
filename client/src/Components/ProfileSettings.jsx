@@ -78,9 +78,7 @@ const ProfileSettings = () => {
 
         // Fetch user stats
         try {
-          const response = await axios.get(
-            `http://localhost:3000/journals/${user.id}`
-          );
+          const response = await API.get(`/journals/${user.id}`);
           const journals = response.data.journals || [];
 
           if (journals.length > 0) {
