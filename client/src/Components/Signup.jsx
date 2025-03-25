@@ -61,6 +61,9 @@ const Signup = () => {
           id: response.data.user._id, // Assuming backend returns the user object
           nickname: response.data.user.nickname,
           email: response.data.user.email,
+          age: response.data.user.age,
+          gender: response.data.user.gender,
+          subscribe: response.data.user.subscribe,
         })
       );
 
