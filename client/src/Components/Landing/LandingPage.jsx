@@ -22,6 +22,7 @@ import { useDarkMode } from "../../context/ThemeContext";
 import Footer from "./Footer";
 import Testimonials from "./Testimonials";
 import Features from "./Features";
+import HowItWorks from "./HowItWorks";
 
 const LandingPage = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -207,58 +208,7 @@ const LandingPage = () => {
         <Features />
 
         {/* How It Works Section */}
-        <div className="w-full py-12">
-          <div className="text-center mb-12">
-            <div className="inline-block mb-4 px-3 py-1 border border-[#1A1A1A] dark:border-[#F8F1E9] text-xs font-medium tracking-wider">
-              THE PROCESS
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold">How It Works</h2>
-            <p className="mt-4 text-base opacity-70 font-medium max-w-xl mx-auto">
-              Three simple steps to mental clarity and improved focus
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-            {[
-              {
-                step: "01",
-                title: "Sign Up",
-                description:
-                  "Choose your focus area and create your account in less than a minute.",
-                icon: <Mail size={24} />,
-              },
-              {
-                step: "02",
-                title: "Daily Practice",
-                description:
-                  "Receive tailored content and track your progress with simple tools.",
-                icon: <Coffee size={24} />,
-              },
-              {
-                step: "03",
-                title: "See Results",
-                description:
-                  "Watch your mental clarity improve with consistent, mindful practice.",
-                icon: <TrendingUp size={24} />,
-              },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className={`p-8 ${
-                  darkMode ? "bg-[#2A2A2A]" : "bg-white"
-                } shadow-sharp`}
-              >
-                <div className="text-sm font-bold text-[#F4A261] mb-4">
-                  {item.step}
-                </div>
-                <div className="mb-4 opacity-80">{item.icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="opacity-70">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
+        <HowItWorks />
         {/* Signup Block */}
         <div
           className={`w-full max-w-2xl ${
