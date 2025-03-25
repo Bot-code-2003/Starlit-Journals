@@ -130,7 +130,7 @@ const ProfileSettings = () => {
       };
 
       // Update user in the database
-      await axios.put(`http://localhost:3000/user/${userData.id}`, updatedUser);
+      await API.put(`/user/${userData.id}`, updatedUser);
 
       // Update local storage
       localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -164,13 +164,10 @@ const ProfileSettings = () => {
 
     try {
       // Verify current password
-      const verifyResponse = await axios.post(
-        "http://localhost:3000/verify-password",
-        {
-          userId: userData.id,
-          password: currentPassword,
-        }
-      );
+      const verifyResponse = await API.post("/verify-password", {
+        userId: userData.id,
+        password: currentPassword,
+      });
 
       if (!verifyResponse.data.valid) {
         setError("Current password is incorrect.");
@@ -179,7 +176,7 @@ const ProfileSettings = () => {
       }
 
       // Update password
-      await axios.put(`http://localhost:3000/user/${userData.id}/password`, {
+      await API.put(`/user/${userData.id}/password`, {
         newPassword,
       });
 
