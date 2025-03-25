@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   Sun,
@@ -10,6 +12,8 @@ import {
   ChevronUp,
   Tag,
   Check,
+  PenLine,
+  Bookmark,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDarkMode } from "../context/ThemeContext";
@@ -28,9 +32,14 @@ const JournalingAlt = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [showTagSelector, setShowTagSelector] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [tagInput, setTagInput] = useState("");
+  const [existingTags, setExistingTags] = useState([]);
+  const [filteredTags, setFilteredTags] = useState([]);
+  const [charCount, setCharCount] = useState(0);
 
   const textareaRef = useRef(null);
   const titleRef = useRef(null);
+  const tagInputRef = useRef(null);
 
   const moods = [
     { emoji: "😄", name: "Happy", color: "#FFB17A" },
@@ -43,26 +52,53 @@ const JournalingAlt = () => {
     { emoji: "🥳", name: "Excited", color: "#F9C74F" },
   ];
 
-  const availableTags = [
-    "Personal",
-    "Work",
-    "Health",
-    "Relationships",
-    "Goals",
-    "Gratitude",
-    "Ideas",
-    "Dreams",
-    "Challenges",
-    "Learning",
-  ];
-
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
+  // Fetch existing tags from journal entries
+  useEffect(() => {
+    const fetchExistingTags = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem("user"));
+        if (!userData || !userData.id) return;
+
+        const response = await API.get(`/journals/${userData.id}`);
+        const journals = response.data.journals || [];
+
+        // Extract unique tags from all journal entries
+        const uniqueTags = new Set();
+        journals.forEach((journal) => {
+          if (journal.tags && Array.isArray(journal.tags)) {
+            journal.tags.forEach((tag) => uniqueTags.add(tag.toUpperCase()));
+          }
+        });
+
+        setExistingTags(Array.from(uniqueTags));
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+
+    fetchExistingTags();
+  }, []);
+
+  // Filter tags based on input
+  useEffect(() => {
+    if (!tagInput.trim()) {
+      setFilteredTags([]);
+      return;
+    }
+
+    const regex = new RegExp(tagInput, "i");
+    const filtered = existingTags.filter((tag) => regex.test(tag));
+    setFilteredTags(filtered);
+  }, [tagInput, existingTags]);
+
   useEffect(() => {
     const words = journalText.trim() ? journalText.trim().split(/\s+/) : [];
     setWordCount(words.length);
+    setCharCount(journalText.length);
   }, [journalText]);
 
   useEffect(() => {
@@ -95,6 +131,9 @@ const JournalingAlt = () => {
         return;
       }
 
+      // Convert all tags to uppercase for consistency
+      const uppercaseTags = selectedTags.map((tag) => tag.toUpperCase());
+
       const journalEntry = {
         userId: userData.id,
         title: journalTitle,
@@ -102,7 +141,7 @@ const JournalingAlt = () => {
         content: journalText,
         date: new Date(),
         wordCount,
-        tags: selectedTags,
+        tags: uppercaseTags,
       };
 
       await API.post("/saveJournal", journalEntry);
@@ -125,10 +164,26 @@ const JournalingAlt = () => {
     }
   }, []);
 
-  const toggleTag = (tag) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+  const addTag = (tag) => {
+    const uppercaseTag = tag.toUpperCase();
+    if (!selectedTags.includes(uppercaseTag) && uppercaseTag.trim() !== "") {
+      setSelectedTags([...selectedTags, uppercaseTag]);
+    }
+    setTagInput("");
+    if (tagInputRef.current) {
+      tagInputRef.current.focus();
+    }
+  };
+
+  const handleTagInputKeyDown = (e) => {
+    if (e.key === "Enter" && tagInput.trim()) {
+      e.preventDefault();
+      addTag(tagInput);
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setSelectedTags(selectedTags.filter((tag) => tag !== tagToRemove));
   };
 
   const selectedMoodColor = selectedMood
@@ -145,12 +200,27 @@ const JournalingAlt = () => {
           : "bg-[#F8F1E9] text-[#1A1A1A]"
       } font-sans transition-colors duration-300`}
     >
+      {/* Background pattern */}
+      <div className="fixed inset-0 z-0 opacity-5 pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 25px 25px, ${
+              darkMode ? "#ffffff" : "#000000"
+            } 2%, transparent 0%), radial-gradient(circle at 75px 75px, ${
+              darkMode ? "#ffffff" : "#000000"
+            } 2%, transparent 0%)`,
+            backgroundSize: "100px 100px",
+          }}
+        ></div>
+      </div>
+
       <nav
         className={`w-full ${
           darkMode
-            ? "bg-[#1A1A1A] border-[#333333]"
-            : "bg-[#F8F1E9] border-[#DDDDDD]"
-        } border-b py-4 px-6 flex justify-between items-center sticky top-0 z-20 shadow-md`}
+            ? "bg-[#1A1A1A]/90 backdrop-blur-sm border-b border-[#333333]"
+            : "bg-[#F8F1E9]/90 backdrop-blur-sm border-b border-[#DDDDDD]"
+        } py-4 px-6 flex justify-between items-center sticky top-0 z-20 shadow-md`}
       >
         <Link to="/" className="flex items-center">
           <div className="text-xl font-bold tracking-tight">
@@ -162,7 +232,7 @@ const JournalingAlt = () => {
             </span>
           </div>
         </Link>
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4">
           <div className="hidden md:flex items-center text-sm opacity-80">
             <Calendar size={16} className="mr-2" />
             {currentDate}
@@ -177,7 +247,7 @@ const JournalingAlt = () => {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className={`px-4 py-2 flex items-center  ${
+            className={`px-4 py-2 flex items-center ${
               darkMode
                 ? "bg-[#F4A261] text-[#1A1A1A] hover:bg-[#F4A261]/90"
                 : "bg-[#E68A41] text-white hover:bg-[#E68A41]/90"
@@ -197,29 +267,29 @@ const JournalingAlt = () => {
         </div>
       </nav>
 
-      <main className="max-w-4xl mx-auto px-6 py-10">
+      <main className="max-w-4xl mx-auto px-6 py-10 relative z-10">
         {saveError && (
-          <div className="mb-4 p-3 bg-red-100 text-red-800  dark:bg-red-900/30 dark:text-red-200">
+          <div className="mb-6 p-4 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 border-l-4 border-red-500 animate-slide-in">
             {saveError}
           </div>
         )}
 
-        <div className="mb-4 flex justify-between items-center">
-          <div className="flex space-x-4">
+        <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <div className="flex flex-wrap gap-3">
             {/** Mood Toggle */}
             <div className="relative">
               <button
                 onClick={() => setShowMoodSelector(!showMoodSelector)}
-                className={`flex items-center px-4 py-2  ${
+                className={`flex items-center px-4 py-2 ${
                   darkMode
                     ? "bg-[#2A2A2A] hover:bg-[#333333]"
                     : "bg-white hover:bg-[#F8F1E9]"
                 } border ${
                   darkMode ? "border-[#333333]" : "border-[#DDDDDD]"
-                } transition-colors duration-200 shadow-sm`}
+                } transition-colors duration-200 shadow-sm hover:shadow`}
               >
                 <div
-                  className="w-3 h-3 mr-2"
+                  className="w-3 h-3 mr-2 rounded-full"
                   style={{ backgroundColor: selectedMoodColor }}
                 ></div>
                 <span className="mr-2 font-medium text-sm">Mood</span>
@@ -235,22 +305,23 @@ const JournalingAlt = () => {
                 )}
               </button>
             </div>
+
             {/** Tags Toggle */}
             <div className="relative">
               <button
                 onClick={() => setShowTagSelector(!showTagSelector)}
-                className={`flex items-center px-4 py-2  ${
+                className={`flex items-center px-4 py-2 ${
                   darkMode
                     ? "bg-[#2A2A2A] hover:bg-[#333333]"
                     : "bg-white hover:bg-[#F8F1E9]"
                 } border ${
                   darkMode ? "border-[#333333]" : "border-[#DDDDDD]"
-                } transition-colors duration-200 shadow-sm`}
+                } transition-colors duration-200 shadow-sm hover:shadow`}
               >
                 <Tag size={16} className="mr-2 opacity-70" />
                 <span className="font-medium text-sm">Tags</span>
                 {selectedTags.length > 0 && (
-                  <span className="ml-2 bg-[#F4A261] text-[#1A1A1A] text-xs px-2 py-0.5">
+                  <span className="ml-2 bg-[#F4A261] text-[#1A1A1A] text-xs px-2 py-0.5 rounded-sm">
                     {selectedTags.length}
                   </span>
                 )}
@@ -263,26 +334,39 @@ const JournalingAlt = () => {
             </div>
           </div>
 
-          <div
-            className={`flex items-center px-4 py-2  ${
-              darkMode
-                ? "bg-[#2A2A2A] hover:bg-[#333333]"
-                : "bg-white hover:bg-[#F8F1E9]"
-            } border ${
-              darkMode ? "border-[#333333]" : "border-[#DDDDDD]"
-            } transition-colors duration-200 shadow-sm`}
-          >
-            <span className="font-medium text-sm">
-              {" "}
-              {wordCount} {wordCount === 1 ? "word" : "words"}{" "}
-            </span>
+          <div className="flex gap-3">
+            <div
+              className={`flex items-center px-4 py-2 ${
+                darkMode ? "bg-[#2A2A2A]" : "bg-white"
+              } border ${
+                darkMode ? "border-[#333333]" : "border-[#DDDDDD]"
+              } shadow-sm`}
+            >
+              <PenLine size={16} className="mr-2 opacity-70" />
+              <span className="font-medium text-sm">
+                {charCount} {charCount === 1 ? "char" : "chars"}
+              </span>
+            </div>
+
+            <div
+              className={`flex items-center px-4 py-2 ${
+                darkMode ? "bg-[#2A2A2A]" : "bg-white"
+              } border ${
+                darkMode ? "border-[#333333]" : "border-[#DDDDDD]"
+              } shadow-sm`}
+            >
+              <Bookmark size={16} className="mr-2 opacity-70" />
+              <span className="font-medium text-sm">
+                {wordCount} {wordCount === 1 ? "word" : "words"}
+              </span>
+            </div>
           </div>
         </div>
 
         {/** Mood options */}
         {showMoodSelector && (
           <div
-            className={`relative mb-4  ${
+            className={`mb-4 ${
               darkMode
                 ? "bg-[#2A2A2A] border-[#333333]"
                 : "bg-white border-[#DDDDDD]"
@@ -296,7 +380,7 @@ const JournalingAlt = () => {
                     setSelectedMood(mood.name);
                     setShowMoodSelector(false);
                   }}
-                  className={`p-2 text-xl  ${
+                  className={`p-2 text-xl flex flex-col items-center ${
                     selectedMood === mood.name
                       ? darkMode
                         ? "bg-[#333333]"
@@ -304,9 +388,10 @@ const JournalingAlt = () => {
                       : ""
                   } hover:${
                     darkMode ? "bg-[#333333]" : "bg-[#F8F1E9]"
-                  } transition-colors duration-150`}
+                  } transition-colors duration-150 rounded`}
                 >
-                  {mood.emoji}
+                  <span>{mood.emoji}</span>
+                  <span className="text-xs mt-1">{mood.name}</span>
                 </button>
               ))}
             </div>
@@ -316,38 +401,100 @@ const JournalingAlt = () => {
         {/** Tag options */}
         {showTagSelector && (
           <div
-            className={`relative mb-4  ${
+            className={`mt-4 mb-4 ${
               darkMode
                 ? "bg-[#2A2A2A] border-[#333333]"
                 : "bg-white border-[#DDDDDD]"
             } border shadow-lg z-10 animate-fade-in`}
           >
-            <div className="p-3 flex flex-wrap gap-2">
-              {availableTags.map((tag) => (
+            <div className="p-3">
+              <div className="flex mb-3">
+                <input
+                  ref={tagInputRef}
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagInputKeyDown}
+                  placeholder="Type a tag and press Enter"
+                  className={`flex-grow px-3 py-2 ${
+                    darkMode
+                      ? "bg-[#333333] text-[#F8F1E9]"
+                      : "bg-[#EEEEEE] text-[#1A1A1A]"
+                  } outline-none`}
+                />
                 <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
-                  className={`px-3 py-1 text-sm  ${
-                    selectedTags.includes(tag)
+                  onClick={() => addTag(tagInput)}
+                  disabled={!tagInput.trim()}
+                  className={`px-3 py-2 ${
+                    darkMode
                       ? "bg-[#F4A261] text-[#1A1A1A]"
-                      : darkMode
-                      ? "bg-[#333333] hover:bg-[#444444]"
-                      : "bg-[#EEEEEE] hover:bg-[#DDDDDD]"
-                  } transition-colors duration-150`}
+                      : "bg-[#E68A41] text-white"
+                  } ${!tagInput.trim() ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
-                  {tag}
+                  Add
                 </button>
-              ))}
+              </div>
+
+              {filteredTags.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-sm opacity-70 mb-1">Suggestions:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {filteredTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => addTag(tag)}
+                        className={`px-3 py-1 text-sm ${
+                          darkMode
+                            ? "bg-[#333333] hover:bg-[#444444]"
+                            : "bg-[#EEEEEE] hover:bg-[#DDDDDD]"
+                        } transition-colors duration-150`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {existingTags.length > 0 && (
+                <div>
+                  <div className="text-sm opacity-70 mb-1">Existing tags:</div>
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                    {existingTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => addTag(tag)}
+                        className={`px-3 py-1 text-sm ${
+                          selectedTags.includes(tag)
+                            ? "bg-[#F4A261] text-[#1A1A1A]"
+                            : darkMode
+                            ? "bg-[#333333] hover:bg-[#444444]"
+                            : "bg-[#EEEEEE] hover:bg-[#DDDDDD]"
+                        } transition-colors duration-150`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
+
         <div
           className={`${
             darkMode
               ? "bg-[#2A2A2A] border-[#333333]"
               : "bg-white border-[#DDDDDD]"
-          } border shadow-lg p-6 transition-all duration-300`}
+          } border shadow-lg p-6 transition-all duration-300 relative`}
         >
+          {/* Decorative corner elements */}
+          <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#F4A261]"></div>
+          <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#F4A261]"></div>
+          <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#F4A261]"></div>
+          <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#F4A261]"></div>
+
           <input
             ref={titleRef}
             type="text"
@@ -358,20 +505,21 @@ const JournalingAlt = () => {
               darkMode
                 ? "bg-[#2A2A2A] text-[#F8F1E9]"
                 : "bg-white text-[#1A1A1A]"
-            } placeholder-opacity-50 `}
+            } placeholder-opacity-50 focus:placeholder-opacity-30 transition-all`}
           />
+
           {selectedTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-6 animate-fade-in">
               {selectedTags.map((tag) => (
                 <div
                   key={tag}
                   className={`flex items-center px-3 py-1 ${
                     darkMode ? "bg-[#333333]" : "bg-[#EEEEEE]"
-                  } text-sm`}
+                  } text-sm hover:shadow-sm transition-shadow`}
                 >
                   {tag}
                   <button
-                    onClick={() => toggleTag(tag)}
+                    onClick={() => removeTag(tag)}
                     className="ml-2 opacity-70 hover:opacity-100 transition-opacity"
                   >
                     <X size={14} />
@@ -380,10 +528,11 @@ const JournalingAlt = () => {
               ))}
             </div>
           )}
+
           {selectedMood && (
-            <div className="mb-6 flex items-center text-sm opacity-70">
+            <div className="mb-6 flex items-center text-sm opacity-70 animate-fade-in">
               <div
-                className="w-3 h-3 mr-2"
+                className="w-3 h-3 mr-2 rounded-full"
                 style={{ backgroundColor: selectedMoodColor }}
               ></div>
               Feeling {selectedMood.toLowerCase()}
@@ -392,6 +541,7 @@ const JournalingAlt = () => {
               </span>
             </div>
           )}
+
           <textarea
             ref={textareaRef}
             value={journalText}
@@ -401,12 +551,12 @@ const JournalingAlt = () => {
               darkMode
                 ? "bg-[#2A2A2A] text-[#F8F1E9]"
                 : "bg-white text-[#1A1A1A]"
-            } text-lg leading-relaxed placeholder-opacity-50 `}
+            } text-lg leading-relaxed placeholder-opacity-50 focus:placeholder-opacity-30 transition-all`}
           ></textarea>
         </div>
       </main>
 
-      <div className="md:hidden fixed bottom-6 left-6 text-sm opacity-70">
+      <div className="md:hidden fixed bottom-6 left-6 text-sm opacity-70 bg-[#2A2A2A] px-3 py-1 rounded-full shadow-md">
         {currentDate}
       </div>
 
@@ -430,6 +580,19 @@ const JournalingAlt = () => {
         }
         .animate-fade-in {
           animation: fade-in 0.2s ease-out;
+        }
+        @keyframes slide-in {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slide-in {
+          animation: slide-in 0.3s ease-out;
         }
       `}</style>
     </div>

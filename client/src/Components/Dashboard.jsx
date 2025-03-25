@@ -23,6 +23,17 @@ import {
   LogOut,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  LabelList,
+} from "recharts";
 
 const Dashboard = () => {
   const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });
@@ -228,6 +239,17 @@ const Dashboard = () => {
     return counts;
   };
 
+  // Prepare data for Recharts
+  const getMoodChartData = () => {
+    const moodCounts = getMoodCounts();
+    return moods.map((mood) => ({
+      name: mood.name,
+      emoji: mood.emoji,
+      count: moodCounts[mood.name] || 0,
+      color: mood.color,
+    }));
+  };
+
   // Get all unique tags from entries
   const getAllTags = () => {
     const tags = new Set();
@@ -297,6 +319,31 @@ const Dashboard = () => {
 
   // All tags
   const allTags = getAllTags();
+
+  // Custom tooltip for the bar chart
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div
+          className={`p-3 ${
+            darkMode ? "bg-[#333333]" : "bg-white"
+          } shadow-lg border ${
+            darkMode ? "border-[#444444]" : "border-[#EEEEEE]"
+          }`}
+        >
+          <p className="font-medium flex items-center">
+            <span className="mr-2">{data.emoji}</span>
+            {data.name}
+          </p>
+          <p className="text-sm mt-1">
+            <span className="font-medium">{data.count}</span> entries
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div
@@ -428,7 +475,6 @@ const Dashboard = () => {
 
           <Link
             to="/profile-settings"
-            a
             className={`flex items-center p-6 ${
               darkMode ? "bg-[#2A2A2A]" : "bg-white"
             } shadow-lg hover:translate-y-[-2px] transition-all duration-300`}
@@ -535,49 +581,97 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Mood Distribution Graph */}
+        {/* Mood Distribution Chart */}
         <div
           className={`${
             darkMode ? "bg-[#2A2A2A]" : "bg-white"
           } shadow-lg p-6 mb-8`}
         >
-          <h2 className="text-xl font-bold mb-4">Mood Distribution</h2>
-          <div className="flex flex-wrap items-end justify-between h-48 mb-2">
-            {moods.map((mood) => {
-              const count = moodCounts[mood.name] || 0;
-              const percentage = journalEntries.length
-                ? (count / journalEntries.length) * 100
-                : 0;
-              const height = percentage > 0 ? Math.max(percentage, 10) : 0;
-
-              return (
-                <div
-                  key={mood.name}
-                  className="flex flex-col items-center mb-2"
-                  style={{ width: `${100 / moods.length}%` }}
-                >
-                  <div className="text-center mb-1">{mood.emoji}</div>
-                  <div
-                    className="w-4/5 transition-all duration-500"
-                    style={{
-                      height: `${height}%`,
-                      backgroundColor: mood.color,
-                      opacity:
-                        selectedMood === mood.name
-                          ? 1
-                          : selectedMood
-                          ? 0.4
-                          : 0.8,
-                    }}
-                  ></div>
-                  <div className="text-xs mt-2 text-center">{count}</div>
-                </div>
-              );
-            })}
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Mood Distribution</h2>
+            {selectedMood && (
+              <button
+                onClick={() => setSelectedMood(null)}
+                className={`px-3 py-1 text-xs ${
+                  darkMode
+                    ? "bg-[#333333] hover:bg-[#444444]"
+                    : "bg-[#EEEEEE] hover:bg-[#DDDDDD]"
+                } transition-colors`}
+              >
+                Reset filter
+              </button>
+            )}
           </div>
-          <div className="flex justify-between text-xs opacity-70 mt-4">
-            <span>Based on {journalEntries.length} entries</span>
-            <span>Click on mood filters above to highlight</span>
+
+          <div className="h-[300px] w-full">
+            {journalEntries.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={getMoodChartData()}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke={darkMode ? "#333333" : "#EEEEEE"}
+                  />
+                  {/* <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 12 }}
+                      tickLine={false}
+                      axisLine={{ stroke: darkMode ? "#333333" : "#DDDDDD" }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    /> */}
+                  <YAxis
+                    allowDecimals={false}
+                    tickLine={false}
+                    axisLine={{ stroke: darkMode ? "#333333" : "#DDDDDD" }}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ fill: "transparent" }}
+                  />
+                  <Bar
+                    dataKey="count"
+                    radius={[2, 2, 0, 0]}
+                    onClick={(data) => setSelectedMood(data.name)}
+                    className="cursor-pointer"
+                  >
+                    {getMoodChartData().map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color}
+                        opacity={
+                          selectedMood && selectedMood !== entry.name
+                            ? 0.4
+                            : 0.8
+                        }
+                      />
+                    ))}
+                    <LabelList
+                      dataKey="emoji"
+                      position="top"
+                      style={{ fontSize: "16px" }}
+                      offset={10}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center">
+                <p className="text-center opacity-70">
+                  No mood data available yet
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="text-xs opacity-70 mt-4 text-center">
+            Based on {journalEntries.length} entries. Click on a bar to filter
+            by that mood.
           </div>
         </div>
 
