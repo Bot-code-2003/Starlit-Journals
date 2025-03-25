@@ -5,6 +5,7 @@ import { Calendar, Tag, BarChart2, ArrowLeft } from "lucide-react";
 import axios from "axios";
 
 const JournalEntry = () => {
+  const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });
   const { id } = useParams();
   const { darkMode } = useDarkMode();
   const [entry, setEntry] = useState(null);
@@ -16,7 +17,7 @@ const JournalEntry = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await axios.get(`http://localhost:3000/journal/${id}`);
+        const response = await API.get(`/journal/${id}`);
         setEntry(response.data.journal); // Corrected to match backend response
       } catch (err) {
         console.error("Error fetching journal entry:", err);
