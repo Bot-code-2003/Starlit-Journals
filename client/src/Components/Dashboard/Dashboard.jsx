@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import MoodDistribution from "./MoodDistribution";
+import StreakCard from "../StreakCard";
 // import StreakCalendarModal from "./StreakCalendarModal";
 
 const Dashboard = () => {
@@ -512,37 +513,7 @@ const Dashboard = () => {
               <span>Max: {wordCountStats.max} words</span>
             </div>
           </div>
-
-          <div
-            className={`${
-              darkMode ? "bg-[#2A2A2A]" : "bg-white"
-            } shadow-lg p-6`}
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-sm opacity-70 mb-1">Streak</h3>
-                <p className="text-3xl font-bold flex items-center">
-                  <span className="mr-2">{userData?.currentStreak || 0}</span>
-                  <span className="text-xl">days</span>
-                </p>
-              </div>
-              <button
-                onClick={() => setShowStreakModal(true)}
-                className="opacity-70 hover:opacity-100 transition-opacity"
-              >
-                <Calendar size={24} />
-              </button>
-            </div>
-            <div className="flex justify-between text-sm opacity-70">
-              <span>Longest: {userData?.longestStreak || 0} days</span>
-              {/* <button
-                onClick={() => setShowStreakModal(true)}
-                className="text-[#F4A261] hover:underline"
-              >
-                View Calendar
-              </button> */}
-            </div>
-          </div>
+          <StreakCard />
         </div>
 
         {/* Mood Distribution Chart */}

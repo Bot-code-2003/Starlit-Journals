@@ -1,13 +1,14 @@
-// StreakCard.jsx
 "use client";
 
 import { Flame, Award } from "lucide-react";
 import { useDarkMode } from "../context/ThemeContext";
+import { useLocation } from "react-router-dom";
 
 const StreakCard = () => {
   const { darkMode } = useDarkMode();
+  const location = useLocation(); // 👈 Get current route
+  const isHome = location.pathname === "/";
 
-  // Fetch user data from localStorage
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const currentStreak = user?.currentStreak || 0;
   const longestStreak = user?.longestStreak || 0;
@@ -19,13 +20,12 @@ const StreakCard = () => {
       })
     : "N/A";
 
-  // Inspirational quote
   const quote = "The secret of getting ahead is getting started.";
   const quoteAuthor = "Mark Twain";
 
   return (
     <div
-      className={`p-6 shadow-lg mb-6 ${
+      className={`p-6 shadow-lg ${
         darkMode ? "bg-[#2A2A2A] text-[#F8F1E9]" : "bg-white text-[#1A1A1A]"
       }`}
     >
@@ -60,21 +60,24 @@ const StreakCard = () => {
         </div>
       </div>
 
-      {/* Last Journaled */}
-      <div className="mb-6">
-        <p className="text-sm opacity-70">Last Journaled</p>
-        <p className="text-lg font-medium">{lastJournaled}</p>
-      </div>
+      {/* Hide these on "/" */}
+      {!isHome && (
+        <>
+          <div className="mb-6">
+            <p className="text-sm opacity-70">Last Journaled</p>
+            <p className="text-lg font-medium">{lastJournaled}</p>
+          </div>
 
-      {/* Inspirational Quote */}
-      <div
-        className={`p-4 italic text-center border-t ${
-          darkMode ? "border-[#333333]" : "border-[#DDDDDD]"
-        }`}
-      >
-        <p className="text-sm opacity-90">"{quote}"</p>
-        <p className="text-xs opacity-70 mt-1">— {quoteAuthor}</p>
-      </div>
+          <div
+            className={`p-4 italic text-center border-t ${
+              darkMode ? "border-[#333333]" : "border-[#DDDDDD]"
+            }`}
+          >
+            <p className="text-sm opacity-90">"{quote}"</p>
+            <p className="text-xs opacity-70 mt-1">— {quoteAuthor}</p>
+          </div>
+        </>
+      )}
     </div>
   );
 };
