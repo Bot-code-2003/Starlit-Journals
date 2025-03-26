@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDarkMode } from "../context/ThemeContext";
+import StreakCard from "./StreakCard";
 
 const ProfileSettings = () => {
   const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });
@@ -371,6 +372,8 @@ const ProfileSettings = () => {
           </div>
         )}
 
+        <StreakCard />
+
         {!isLoading && userData && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Account Stats */}
@@ -424,7 +427,6 @@ const ProfileSettings = () => {
                 </div>
               </div>
             </div>
-
             {/* Profile Information */}
             <div className="md:col-span-2">
               <div
@@ -747,7 +749,7 @@ const ProfileSettings = () => {
                   </form>
                 )}
 
-                <div className="border-t mt-6 pt-6">
+                <div className="border-t pt-6">
                   <h3 className="font-bold mb-2">Danger Zone</h3>
                   <button
                     onClick={handleDeleteAccount}
