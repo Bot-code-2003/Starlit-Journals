@@ -84,7 +84,7 @@ const Navbar = ({ isScrolled, darkMode, setDarkMode, user }) => {
 
             {user !== null ? (
               <>
-                <Link
+                {/* <Link
                   to={"/dashboard"}
                   className={`px-4 py-2 flex items-center gap-3 ${
                     darkMode
@@ -93,7 +93,7 @@ const Navbar = ({ isScrolled, darkMode, setDarkMode, user }) => {
                   } hover:opacity-90 transition-opacity`}
                 >
                   Dashboard <LayoutDashboard size={18} />
-                </Link>
+                </Link> */}
 
                 {user && (
                   <Link

@@ -4,12 +4,14 @@ import cors from "cors";
 import User from "./models/User.js"; // Import the User model
 import Journal from "./models/journal.js"; // Import the Journal model
 
-import serverless from "serverless-http";
-
 const app = express();
 
+const mongoURL =
+  "mongodb+srv://madisettydharmadeep:cozyminds@cozyminds.yth43.mongodb.net/?retryWrites=true&w=majority&appName=cozyminds";
 app.use(cors({ origin: "https://cozyminds.vercel.app" }));
+// const mongoURL = "mongodb://localhost:27017/CozyMind";
 // app.use(cors());
+
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -68,7 +70,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// 🔥 Save Journal Entry
+// 🔥 Save Journal Entry with Streak Logic
 app.post("/saveJournal", async (req, res) => {
   try {
     const { userId, title, content, mood, tags, wordCount, date } = req.body;
@@ -95,10 +97,13 @@ app.post("/saveJournal", async (req, res) => {
       mood,
       tags,
       wordCount,
-      date: date || new Date(),
+      date: new Date(), // ✅ Proper ISO format
     });
 
     await newJournal.save();
+
+    // Update user streak
+    await updateUserStreak(userId, newJournal.date); // 👈 pass actual journal date
 
     res.status(201).json({
       message: "Journal entry saved successfully!",
@@ -112,6 +117,52 @@ app.post("/saveJournal", async (req, res) => {
     });
   }
 });
+async function updateUserStreak(userId, journalDate) {
+  try {
+    const user = await User.findById(userId);
+    if (!user) return;
+
+    const currentDate = new Date(journalDate);
+    currentDate.setHours(0, 0, 0, 0); // normalize
+
+    const lastJournaledDate = user.lastJournaled
+      ? new Date(user.lastJournaled)
+      : null;
+
+    if (lastJournaledDate) {
+      lastJournaledDate.setHours(0, 0, 0, 0); // normalize
+    }
+
+    // If already journaled on the same day → no streak change
+    if (
+      lastJournaledDate &&
+      lastJournaledDate.getTime() === currentDate.getTime()
+    ) {
+      return;
+    }
+
+    // Determine streak
+    let newStreak = 1;
+    if (lastJournaledDate) {
+      const yesterday = new Date(currentDate);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      if (lastJournaledDate.getTime() === yesterday.getTime()) {
+        newStreak = user.currentStreak + 1;
+      }
+    }
+
+    const newLongestStreak = Math.max(newStreak, user.longestStreak || 0);
+
+    await User.findByIdAndUpdate(userId, {
+      currentStreak: newStreak,
+      longestStreak: newLongestStreak,
+      lastJournaled: journalDate,
+    });
+  } catch (error) {
+    console.error("Error updating streak:", error);
+  }
+}
 
 // 🔥 Get Journal Entries for a User
 app.get("/journals/:userId", async (req, res) => {
@@ -226,7 +277,16 @@ app.delete("/journal/:id", async (req, res) => {
 app.put("/user/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { nickname, email, age, gender, subscribe } = req.body;
+    const {
+      nickname,
+      email,
+      age,
+      gender,
+      subscribe,
+      currentStreak,
+      longestStreak,
+      lastJournaled,
+    } = req.body;
 
     // Validate user ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -243,12 +303,22 @@ app.put("/user/:id", async (req, res) => {
       }
     }
 
+    // Create update object with only provided fields
+    const updateData = {};
+    if (nickname) updateData.nickname = nickname;
+    if (email) updateData.email = email;
+    if (age) updateData.age = age;
+    if (gender) updateData.gender = gender;
+    if (subscribe !== undefined) updateData.subscribe = subscribe;
+    if (currentStreak !== undefined) updateData.currentStreak = currentStreak;
+    if (longestStreak !== undefined) updateData.longestStreak = longestStreak;
+    if (lastJournaled) updateData.lastJournaled = lastJournaled;
+
     // Find and update the user
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { nickname, email, age, gender, subscribe },
-      { new: true, runValidators: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found." });
@@ -360,10 +430,7 @@ app.delete("/user/:id", async (req, res) => {
 
 // Connect to MongoDB and start the server
 mongoose
-  // .connect("mongodb://localhost:27017/CozyMind")
-  .connect(
-    "mongodb+srv://madisettydharmadeep:cozyminds@cozyminds.yth43.mongodb.net/?retryWrites=true&w=majority&appName=cozyminds"
-  )
+  .connect(mongoURL)
   .then(() => {
     app.listen(3000, () => {
       console.log("Server is running on port 3000 ");

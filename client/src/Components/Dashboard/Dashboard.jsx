@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useDarkMode } from "../context/ThemeContext";
+import { useDarkMode } from "../../context/ThemeContext";
 import axios from "axios";
 import {
   Sun,
@@ -15,7 +15,6 @@ import {
   Tag,
   Trash2,
   BarChart2,
-  PieChart,
   Clock,
   Plus,
   BookOpen,
@@ -23,17 +22,8 @@ import {
   LogOut,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  LabelList,
-} from "recharts";
+import MoodDistribution from "./MoodDistribution";
+// import StreakCalendarModal from "./StreakCalendarModal";
 
 const Dashboard = () => {
   const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });
@@ -51,6 +41,7 @@ const Dashboard = () => {
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showStreakModal, setShowStreakModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -112,6 +103,31 @@ const Dashboard = () => {
     document.documentElement.classList.toggle("dark");
   };
 
+  // Check if user should see streak modal (next day login)
+  const shouldShowStreakModal = () => {
+    const lastVisit = localStorage.getItem("lastVisitDate");
+    if (!lastVisit) {
+      // First visit, set today's date and don't show modal
+      localStorage.setItem("lastVisitDate", new Date().toDateString());
+      return false;
+    }
+
+    const today = new Date().toDateString();
+    const lastVisitDate = new Date(lastVisit);
+    const currentDate = new Date(today);
+
+    // Calculate if it's a new day
+    const isNewDay =
+      currentDate.getDate() !== lastVisitDate.getDate() ||
+      currentDate.getMonth() !== lastVisitDate.getMonth() ||
+      currentDate.getFullYear() !== lastVisitDate.getFullYear();
+
+    // Update last visit date
+    localStorage.setItem("lastVisitDate", today);
+
+    return isNewDay;
+  };
+
   // Load user data and journal entries
   useEffect(() => {
     const fetchData = async () => {
@@ -126,6 +142,10 @@ const Dashboard = () => {
           navigate("/login");
           return;
         }
+
+        // Check if we should show streak modal (next day login)
+        const showStreak = shouldShowStreakModal();
+        setShowStreakModal(showStreak);
 
         // Fetch journal entries from the server
         const response = await API.get(`/journals/${user.id}`);
@@ -205,7 +225,7 @@ const Dashboard = () => {
   // Logout
   const handleLogout = () => {
     localStorage.removeItem("user");
-    navigate("/");
+    window.location.href = "/";
   };
 
   // Delete an entry
@@ -221,33 +241,6 @@ const Dashboard = () => {
         alert("Failed to delete entry. Please try again.");
       }
     }
-  };
-
-  // Get mood counts for chart
-  const getMoodCounts = () => {
-    const counts = {};
-    moods.forEach((mood) => {
-      counts[mood.name] = 0;
-    });
-
-    journalEntries.forEach((entry) => {
-      if (entry.mood) {
-        counts[entry.mood] = (counts[entry.mood] || 0) + 1;
-      }
-    });
-
-    return counts;
-  };
-
-  // Prepare data for Recharts
-  const getMoodChartData = () => {
-    const moodCounts = getMoodCounts();
-    return moods.map((mood) => ({
-      name: mood.name,
-      emoji: mood.emoji,
-      count: moodCounts[mood.name] || 0,
-      color: mood.color,
-    }));
   };
 
   // Get all unique tags from entries
@@ -314,36 +307,8 @@ const Dashboard = () => {
   // Word count stats
   const wordCountStats = getWordCountStats();
 
-  // Mood counts
-  const moodCounts = getMoodCounts();
-
   // All tags
   const allTags = getAllTags();
-
-  // Custom tooltip for the bar chart
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div
-          className={`p-3 ${
-            darkMode ? "bg-[#333333]" : "bg-white"
-          } shadow-lg border ${
-            darkMode ? "border-[#444444]" : "border-[#EEEEEE]"
-          }`}
-        >
-          <p className="font-medium flex items-center">
-            <span className="mr-2">{data.emoji}</span>
-            {data.name}
-          </p>
-          <p className="text-sm mt-1">
-            <span className="font-medium">{data.count}</span> entries
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div
@@ -353,6 +318,13 @@ const Dashboard = () => {
           : "bg-[#F8F1E9] text-[#1A1A1A]"
       } font-sans transition-colors duration-300`}
     >
+      {/* Streak Calendar Modal */}
+      {/* <StreakCalendarModal
+        user={userData}
+        isVisible={showStreakModal}
+        onClose={() => setShowStreakModal(false)}
+      /> */}
+
       {/* Top navigation bar */}
       <nav
         className={`w-full ${
@@ -548,132 +520,37 @@ const Dashboard = () => {
           >
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="text-sm opacity-70 mb-1">Most Common Mood</h3>
-                {journalEntries.length ? (
-                  <div className="flex items-center">
-                    <span className="text-3xl mr-2">
-                      {getMoodEmoji(
-                        Object.entries(moodCounts).sort(
-                          (a, b) => b[1] - a[1]
-                        )[0]?.[0]
-                      )}
-                    </span>
-                    <span className="text-xl font-bold">
-                      {
-                        Object.entries(moodCounts).sort(
-                          (a, b) => b[1] - a[1]
-                        )[0]?.[0]
-                      }
-                    </span>
-                  </div>
-                ) : (
-                  <p className="text-xl font-bold">No entries yet</p>
-                )}
+                <h3 className="text-sm opacity-70 mb-1">Streak</h3>
+                <p className="text-3xl font-bold flex items-center">
+                  <span className="mr-2">{userData?.currentStreak || 0}</span>
+                  <span className="text-xl">days</span>
+                </p>
               </div>
-              <PieChart size={24} className="opacity-70" />
+              <button
+                onClick={() => setShowStreakModal(true)}
+                className="opacity-70 hover:opacity-100 transition-opacity"
+              >
+                <Calendar size={24} />
+              </button>
             </div>
             <div className="flex justify-between text-sm opacity-70">
-              <span>
-                Mood entries:{" "}
-                {Object.values(moodCounts).reduce((a, b) => a + b, 0)}
-              </span>
+              <span>Longest: {userData?.longestStreak || 0} days</span>
+              {/* <button
+                onClick={() => setShowStreakModal(true)}
+                className="text-[#F4A261] hover:underline"
+              >
+                View Calendar
+              </button> */}
             </div>
           </div>
         </div>
 
         {/* Mood Distribution Chart */}
-        <div
-          className={`${
-            darkMode ? "bg-[#2A2A2A]" : "bg-white"
-          } shadow-lg p-6 mb-8`}
-        >
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Mood Distribution</h2>
-            {selectedMood && (
-              <button
-                onClick={() => setSelectedMood(null)}
-                className={`px-3 py-1 text-xs ${
-                  darkMode
-                    ? "bg-[#333333] hover:bg-[#444444]"
-                    : "bg-[#EEEEEE] hover:bg-[#DDDDDD]"
-                } transition-colors`}
-              >
-                Reset filter
-              </button>
-            )}
-          </div>
-
-          <div className="h-[300px] w-full">
-            {journalEntries.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={getMoodChartData()}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    stroke={darkMode ? "#333333" : "#EEEEEE"}
-                  />
-                  {/* <XAxis
-                      dataKey="name"
-                      tick={{ fontSize: 12 }}
-                      tickLine={false}
-                      axisLine={{ stroke: darkMode ? "#333333" : "#DDDDDD" }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={60}
-                    /> */}
-                  <YAxis
-                    allowDecimals={false}
-                    tickLine={false}
-                    axisLine={{ stroke: darkMode ? "#333333" : "#DDDDDD" }}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <Tooltip
-                    content={<CustomTooltip />}
-                    cursor={{ fill: "transparent" }}
-                  />
-                  <Bar
-                    dataKey="count"
-                    radius={[2, 2, 0, 0]}
-                    onClick={(data) => setSelectedMood(data.name)}
-                    className="cursor-pointer"
-                  >
-                    {getMoodChartData().map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={entry.color}
-                        opacity={
-                          selectedMood && selectedMood !== entry.name
-                            ? 0.4
-                            : 0.8
-                        }
-                      />
-                    ))}
-                    <LabelList
-                      dataKey="emoji"
-                      position="top"
-                      style={{ fontSize: "16px" }}
-                      offset={10}
-                    />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center">
-                <p className="text-center opacity-70">
-                  No mood data available yet
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="text-xs opacity-70 mt-4 text-center">
-            Based on {journalEntries.length} entries. Click on a bar to filter
-            by that mood.
-          </div>
-        </div>
+        <MoodDistribution
+          journalEntries={journalEntries}
+          selectedMood={selectedMood}
+          setSelectedMood={setSelectedMood}
+        />
 
         {/* Filters and search */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">

@@ -38,6 +38,17 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    currentStreak: {
+      type: Number,
+      default: 0,
+    },
+    lastJournaled: {
+      type: Date,
+    },
+    longestStreak: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

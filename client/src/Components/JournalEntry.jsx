@@ -60,7 +60,7 @@ const JournalEntry = () => {
           {error || "This journal entry doesn’t exist or has been removed."}
         </p>
         <Link
-          to="/dashboard"
+          to="/"
           className={`flex items-center space-x-2 px-6 py-2 ${
             darkMode
               ? "bg-[#F4A261] text-[#1A1A1A]"
@@ -89,7 +89,7 @@ const JournalEntry = () => {
       {/* Back Button */}
       <div className="w-full max-w-4xl flex justify-start mb-8 z-10">
         <Link
-          to="/dashboard"
+          to="/"
           className={`flex items-center space-x-2 px-4 py-2 ${
             darkMode
               ? "bg-[#2A2A2A] text-[#F8F1E9] hover:bg-[#F4A261] hover:text-[#1A1A1A]"

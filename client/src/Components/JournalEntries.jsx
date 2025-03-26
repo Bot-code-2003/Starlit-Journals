@@ -328,7 +328,7 @@ const JournalEntries = () => {
           </button>
 
           <Link
-            to="/dashboard"
+            to="/"
             className={`hidden md:flex items-center px-4 py-2 ${
               darkMode
                 ? "bg-[#F4A261] text-[#1A1A1A]"

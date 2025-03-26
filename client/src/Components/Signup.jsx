@@ -68,7 +68,7 @@ const Signup = () => {
       );
 
       // Redirect immediately after signup
-      navigate("/dashboard");
+      window.location.href = "/";
     } catch (error) {
       console.error(
         "Signup Error:",

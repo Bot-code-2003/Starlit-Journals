@@ -42,9 +42,12 @@ const Login = () => {
           age: response.data.user.age,
           gender: response.data.user.gender,
           subscribe: response.data.user.subscribe,
+          currentStreak: response.data.user.currentStreak,
+          longestStreak: response.data.user.longestStreak,
+          lastJournaled: response.data.user.lastJournaled,
         })
       );
-      navigate("/dashboard");
+      window.location.href = "/";
     } catch (error) {
       console.error("Login failed:", error);
     }

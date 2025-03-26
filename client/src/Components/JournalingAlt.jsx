@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   Sun,
   Moon,
@@ -37,6 +38,7 @@ const JournalingAlt = () => {
   const [filteredTags, setFilteredTags] = useState([]);
   const [charCount, setCharCount] = useState(0);
 
+  const navigate = useNavigate();
   const textareaRef = useRef(null);
   const titleRef = useRef(null);
   const tagInputRef = useRef(null);
@@ -147,13 +149,16 @@ const JournalingAlt = () => {
       await API.post("/saveJournal", journalEntry);
 
       setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 2000);
+
+      // Navigate to home after successful save
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (error) {
       console.error("Error saving journal:", error);
       setSaveError(
         error.response?.data?.message || "Failed to save journal entry"
       );
-    } finally {
       setIsSaving(false);
     }
   };

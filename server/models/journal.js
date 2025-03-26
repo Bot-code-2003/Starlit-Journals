@@ -42,8 +42,8 @@ const journalSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-  },
-  { timestamps: true }
+  }
+  // { timestamps: true }
 );
 
 const Journal = mongoose.model("Journal", journalSchema);
