@@ -63,7 +63,7 @@ Publish short, fictional cozy stories or journal-style character entries.
 
 Let users subscribe to follow the story.
 
-## Whisper Jar
+## 3. Whisper Jar
 
 Users can opt in to either make their entry public or private. Private entries are not visible to other users.
 
