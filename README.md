@@ -41,7 +41,7 @@ To create a cozy digital space that helps people slow down, reflect, and feel mo
 
 ## Future Ideas
 
-## 🌱 3. A Garden That Grows With You
+## 🌱 1. A Garden That Grows With You
 
 Every time users journal or complete an activity, a virtual plant/tree grows on their dashboard.
 
@@ -50,3 +50,22 @@ Every time users journal or complete an activity, a virtual plant/tree grows on 
 - Sunshine = cozy content read
 
 - Fertilizer = completed reflection prompts 🪴 Peaceful visuals = strong emotional attachment.
+
+## 📚 2. Cozy Story Series
+
+Publish short, fictional cozy stories or journal-style character entries.
+
+- E.g., “The Diary of a Bookstore Cat”
+
+- One tiny episode every few days.
+
+- Think Studio Ghibli vibes. 🌸
+
+Let users subscribe to follow the story.
+
+## Whisper Jar
+
+Users can opt in to either make their entry public or private. Private entries are not visible to other users.
+
+- When reader clicks on the jar then a random whisper from the jar (out of list of public entries) appears.
+- The authors details are protected and cannot be seen.
