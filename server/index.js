@@ -6,11 +6,11 @@ import Journal from "./models/journal.js"; // Import the Journal model
 
 const app = express();
 
-const mongoURL =
-  "mongodb+srv://madisettydharmadeep:cozyminds@cozyminds.yth43.mongodb.net/?retryWrites=true&w=majority&appName=cozyminds";
-app.use(cors({ origin: "https://cozyminds.vercel.app" }));
-// const mongoURL = "mongodb://localhost:27017/CozyMind";
-// app.use(cors());
+// const mongoURL =
+// "mongodb+srv://madisettydharmadeep:cozyminds@cozyminds.yth43.mongodb.net/?retryWrites=true&w=majority&appName=cozyminds";
+// app.use(cors({ origin: "https://cozyminds.vercel.app" }));
+const mongoURL = "mongodb://localhost:27017/CozyMind";
+app.use(cors());
 
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
