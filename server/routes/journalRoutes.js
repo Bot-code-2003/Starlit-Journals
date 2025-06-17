@@ -32,13 +32,41 @@ router.get("/journals/public", async (req, res) => {
         return res.status(400).json({ message: "Invalid sort parameter" });
     }
 
-    const journals = await Journal.find({ isPublic: true })
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit)
-      .select(
-        "title content authorName createdAt likeCount likes theme mood tags slug"
-      );
+    // Get journals with comment counts
+    const journals = await Journal.aggregate([
+      { $match: { isPublic: true } },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "journalId",
+          as: "comments"
+        }
+      },
+      {
+        $addFields: {
+          commentCount: { $size: "$comments" }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          content: 1,
+          authorName: 1,
+          createdAt: 1,
+          likeCount: 1,
+          likes: 1,
+          theme: 1,
+          mood: 1,
+          tags: 1,
+          slug: 1,
+          commentCount: 1
+        }
+      },
+      { $sort: sortOption },
+      { $skip: skip },
+      { $limit: limit }
+    ]);
 
     const totalJournals = await Journal.countDocuments({ isPublic: true });
     const hasMore = skip + journals.length < totalJournals;
@@ -52,12 +80,10 @@ router.get("/journals/public", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching public journals:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error fetching public journals",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching public journals",
+      error: error.message,
+    });
   }
 });
 
@@ -582,5 +608,87 @@ router.get("/journals/singlepublic/:slug", async (req, res) => {
       .json({ message: "Error fetching public journal", error: error.message });
   }
 });
+
+// Add this route to get comment count for journals
+router.get("/journals/with-comments", async (req, res) => {
+  try {
+    const page = Number.parseInt(req.query.page) || 1
+    const limit = Number.parseInt(req.query.limit) || 10
+    const sort = req.query.sort || "-createdAt"
+    const skip = (page - 1) * limit
+
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({ message: "Invalid page or limit value" })
+    }
+
+    let sortOption
+    switch (sort) {
+      case "likeCount":
+        sortOption = { likeCount: -1, createdAt: -1 }
+        break
+      case "createdAt":
+        sortOption = { createdAt: 1 }
+        break
+      case "-createdAt":
+        sortOption = { createdAt: -1 }
+        break
+      default:
+        return res.status(400).json({ message: "Invalid sort parameter" })
+    }
+
+    // Aggregate to get journals with comment counts
+    const journals = await Journal.aggregate([
+      { $match: { isPublic: true } },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "journalId",
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          commentCount: { $size: "$comments" },
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          content: 1,
+          authorName: 1,
+          createdAt: 1,
+          likeCount: 1,
+          likes: 1,
+          theme: 1,
+          mood: 1,
+          tags: 1,
+          slug: 1,
+          commentCount: 1,
+        },
+      },
+      { $sort: sortOption },
+      { $skip: skip },
+      { $limit: limit },
+    ])
+
+    const totalJournals = await Journal.countDocuments({ isPublic: true })
+    const hasMore = skip + journals.length < totalJournals
+
+    res.json({
+      journals,
+      hasMore,
+      page,
+      limit,
+      total: totalJournals,
+    })
+  } catch (error) {
+    console.error("Error fetching journals with comments:", error)
+    res.status(500).json({
+      message: "Error fetching journals",
+      error: error.message,
+    })
+  }
+})
 
 export default router;

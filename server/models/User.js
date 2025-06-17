@@ -132,6 +132,14 @@ const userSchema = new mongoose.Schema(
         ref: "Journal",
       },
     ],
+    completedEntryMilestones: {
+      type: [Number],
+      default: [],
+    },
+    completedStreakMilestones: {
+      type: [Number],
+      default: [],
+    },
   },
   { timestamps: true }
 );

@@ -475,13 +475,18 @@ router.post("/login", async (req, res) => {
 
       for (const milestone of streakMilestones) {
         if (user.currentStreak === milestone) {
+          // Check if this streak milestone has already been sent to the user
+          if (user.completedStreakMilestones.includes(milestone)) {
+            continue; // Skip if already sent
+          }
+
           // Check if we have templates for this milestone
           const milestoneKey = `${milestone}day`;
 
           if (mailTemplates.streakMilestone[milestoneKey]) {
             const existingStreakMail = await Mail.findOne({
               "recipients.userId": user._id,
-              mailType: "reward",
+              mailType: "streak",
               "metadata.milestone": milestone,
               date: { $gte: getDateDaysAgo(milestone) },
             });
@@ -510,12 +515,16 @@ router.post("/login", async (req, res) => {
                       : undefined,
                   },
                 ],
-                mailType: "reward",
+                mailType: "streak",
                 rewardAmount: streakTemplate.rewardAmount,
                 metadata: { milestone: milestone },
                 date: new Date(),
                 themeId: user.activeMailTheme,
               });
+
+              // Add milestone to user's completedStreakMilestones and save
+              user.completedStreakMilestones.push(milestone);
+              await user.save();
             }
           }
         }
@@ -528,47 +537,48 @@ router.post("/login", async (req, res) => {
 
       for (const milestone of entryMilestones) {
         if (entryCount === milestone) {
+          // Check if this entry milestone has already been sent to the user
+          if (user.completedEntryMilestones.includes(milestone)) {
+            continue; // Skip if already sent
+          }
+
           // Check if we have templates for this milestone
           const milestoneKey = `${milestone}entries`;
 
           if (mailTemplates.entryMilestone[milestoneKey]) {
-            const existingEntryMail = await Mail.findOne({
-              "recipients.userId": user._id,
+            const entryTemplate = getRandomTemplate(
+              mailTemplates.entryMilestone[milestoneKey]
+            );
+
+            // Apply mail theme if user has one active
+            let content = entryTemplate.content;
+            if (user.activeMailTheme) {
+              content = applyMailTheme(content, user.activeMailTheme);
+            }
+
+            mailsToSend.push({
+              sender: entryTemplate.sender,
+              title: entryTemplate.title,
+              content: content,
+              recipients: [
+                {
+                  userId: user._id,
+                  read: false,
+                  rewardClaimed: entryTemplate.rewardAmount
+                    ? false
+                    : undefined,
+                },
+              ],
               mailType: "entry",
-              "metadata.milestone": milestone,
+              rewardAmount: entryTemplate.rewardAmount,
+              metadata: { milestone: milestone },
+              date: new Date(),
+              themeId: user.activeMailTheme,
             });
 
-            if (!existingEntryMail) {
-              const entryTemplate = getRandomTemplate(
-                mailTemplates.entryMilestone[milestoneKey]
-              );
-
-              // Apply mail theme if user has one active
-              let content = entryTemplate.content;
-              if (user.activeMailTheme) {
-                content = applyMailTheme(content, user.activeMailTheme);
-              }
-
-              mailsToSend.push({
-                sender: entryTemplate.sender,
-                title: entryTemplate.title,
-                content: content,
-                recipients: [
-                  {
-                    userId: user._id,
-                    read: false,
-                    rewardClaimed: entryTemplate.rewardAmount
-                      ? false
-                      : undefined,
-                  },
-                ],
-                mailType: "reward",
-                rewardAmount: entryTemplate.rewardAmount,
-                metadata: { milestone: milestone },
-                date: new Date(),
-                themeId: user.activeMailTheme,
-              });
-            }
+            // Add milestone to user's completedEntryMilestones and save
+            user.completedEntryMilestones.push(milestone);
+            await user.save();
           }
         }
       }
@@ -1275,7 +1285,7 @@ router.post("/login", async (req, res) => {
             "Your Daily Prompt, Cutie~ 💖",
             "Write This for Me, Senpai! 💌",
             "A Tiny Prompt, Just for You~ ✨",
-            "Nyaa~ Take This Prompt Already! ��",
+            "Nyaa~ Take This Prompt Already! 🐾",
             "Let's Write Something Adorable Today! 💕",
             "💖 Today's Prompt from Your Favorite Girl~",
             "💌 Teehee~ Try Writing This One!",
