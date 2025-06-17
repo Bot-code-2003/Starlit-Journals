@@ -35,7 +35,6 @@ const Testimonials = ({ darkMode }) => {
   return (
     <section className="z-10 w-full max-w-7xl py-24 px-1 sm:px-6 relative">
       {/* Background decorative elements */}
-      <div className="absolute -top-12 -right-12 w-24 h-24 border-2 border-[#1A1A1A]/20 dark:border-[#F8F1E9]/20 z-0"></div>
       <div className="absolute bottom-12 left-0 w-12 h-12 border-2 border-[#1A1A1A]/20 dark:border-[#F8F1E9]/20 z-0"></div>
 
       <div className="text-center mb-16 relative">

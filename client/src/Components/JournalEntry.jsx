@@ -612,7 +612,7 @@ const JournalEntry = () => {
           }
 
           .journal-content-display blockquote {
-            border-left: 4px solid #3b82f6;
+            border-left: 4px solid #5B8A9E;
             padding-left: 1.5rem;
             margin: 2rem 0;
             font-style: italic;
@@ -649,7 +649,7 @@ const JournalEntry = () => {
           }
 
           .journal-content-display a {
-            color: #3b82f6;
+            color: #5B8A9E;
             text-decoration: underline;
             transition: opacity 0.2s;
             word-break: break-all;

@@ -80,7 +80,7 @@ const SignupModal = ({ isOpen, onClose, onSwitchToLogin, darkMode }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4">
       <div className="w-full max-w-5xl bg-[#f3f9fc] dark:bg-[#1A1A1A] text-[#1A1A1A] dark:text-[#F8F1E9] rounded-2xl overflow-hidden border-2 border-[#1A1A1A] dark:border-[#F8F1E9] max-h-[90vh] overflow-y-auto">
         <div className="relative flex flex-col lg:flex-row min-h-[600px]">
           <button
@@ -88,7 +88,7 @@ const SignupModal = ({ isOpen, onClose, onSwitchToLogin, darkMode }) => {
             className="absolute top-4 right-4 p-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-colors z-10"
             aria-label="Close signup modal"
           >
-            <X size={20} />
+            <X size={20} className="text-white" />
           </button>
           {/* Background Image Section */}
           <div

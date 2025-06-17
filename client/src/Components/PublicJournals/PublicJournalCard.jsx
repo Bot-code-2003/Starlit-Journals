@@ -101,16 +101,40 @@ const PublicJournalCard = ({ journal, onLike, onShare, isLiked }) => {
   );
 
   const handleShare = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
       e.stopPropagation();
       if (!user) {
         openLoginModal();
         return;
       }
-      onShare(journal._id);
+
+      const shareUrl = `${window.location.origin}/public-journal/${journal.slug}`;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: journal.title || "CozyMind Journal Entry",
+            url: shareUrl,
+          });
+          // Optional: Add a subtle visual feedback for successful share
+        } catch (error) {
+          console.error("Error sharing:", error);
+          // User might have cancelled share, or other error occurred
+        }
+      } else if (navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          alert("Journal link copied to clipboard!"); // Simple alert for fallback
+        } catch (err) {
+          console.error("Failed to copy: ", err);
+          alert("Failed to copy link to clipboard.");
+        }
+      } else {
+        alert("Web Share API and clipboard not supported on this browser.");
+      }
     },
-    [onShare, journal._id, user, openLoginModal]
+    [journal.slug, journal.title, user, openLoginModal]
   );
 
   const handleImageError = useCallback(() => {
@@ -266,7 +290,7 @@ const PublicJournalCard = ({ journal, onLike, onShare, isLiked }) => {
               {/* Like Button */}
               <motion.button
                 onClick={handleLike}
-                className="flex items-center gap-2 px-3 py-2 text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200 group/like"
+                className="flex items-center gap-2 px-1 py-2 text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200 group/like"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -280,10 +304,19 @@ const PublicJournalCard = ({ journal, onLike, onShare, isLiked }) => {
                 </span>
               </motion.button>
 
+              {/* Comments Indicator */}
+              <Link
+                to={`/public-journal/${journal.slug}#comments`}
+                className="flex items-center gap-2 px-1 py-2 text-[var(--text-secondary)] hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 group/comments"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span className="text-xs font-medium">{journal.commentCount || 0}</span>
+              </Link>
+
               {/* Share Button */}
               <motion.button
                 onClick={handleShare}
-                className="flex items-center gap-2 px-3 py-2 text-[var(--text-secondary)] hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 group/share"
+                className="flex items-center gap-2 px-1 py-2 text-[var(--text-secondary)] hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 group/share"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >

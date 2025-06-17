@@ -29,9 +29,9 @@ button:hover {
   --text-secondary: #86868b;
   --text-journal-title: #ffffff;
 
-  --accent: #0071e3;
-  --accent-rgb: 0, 113, 227;
-  --accent-hover: #0077ed;
+  --accent: #5B8A9E;
+  --accent-rgb: 91, 138, 158;
+  --accent-hover: #6B9AAE;
 
   --highlight: #34c759;
   --highlight-rgb: 52, 199, 89;
@@ -60,9 +60,9 @@ button:hover {
   --text-secondary: #86868b;
   --text-journal-title: #ffffff;
 
-  --accent: #0a84ff;
-  --accent-rgb: 10, 132, 255;
-  --accent-hover: #409cff;
+  --accent: #6B9AAE;
+  --accent-rgb: 107, 154, 174;
+  --accent-hover: #7BAABE;
 
   --highlight: #30d158;
   --highlight-rgb: 48, 209, 88;

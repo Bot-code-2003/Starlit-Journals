@@ -1,32 +1,19 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useParams, useLocation, Link } from "react-router-dom";
-import axios from "axios";
-import {
-  Heart,
-  Share2,
-  BarChart2,
-  Tag,
-  Loader2,
-  Users,
-  Calendar,
-  Flame,
-  ArrowLeft,
-  Clock,
-  Eye,
-  AlertCircle,
-} from "lucide-react";
-import { getCardClass, getThemeDetails } from "../Dashboard/ThemeDetails";
-import Navbar from "../Dashboard/Navbar";
-import LandingNavbar from "../Landing/Navbar";
-import { useDarkMode } from "../../context/ThemeContext";
-import { useNavigate } from "react-router-dom";
-import { usePublicJournals } from "../../context/PublicJournalsContext";
-import { Helmet } from "react-helmet-async";
-import AuthModals from "../Landing/AuthModals";
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { useParams, useLocation, Link } from "react-router-dom"
+import axios from "axios"
+import { Heart, Share2, BarChart2, Tag, Loader2, Users, Calendar, Flame, Clock, Eye } from "lucide-react"
+import { getCardClass, getThemeDetails } from "../Dashboard/ThemeDetails"
+import Navbar from "../Dashboard/Navbar"
+import LandingNavbar from "../Landing/Navbar"
+import { useDarkMode } from "../../context/ThemeContext"
+import { useNavigate } from "react-router-dom"
+import { usePublicJournals } from "../../context/PublicJournalsContext"
+import AuthModals from "../Landing/AuthModals"
+import Comments from "./Comments"
 
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });
+const API = axios.create({ baseURL: import.meta.env.VITE_API_URL })
 
 const moodStyles = {
   Happy: {
@@ -83,100 +70,113 @@ const moodStyles = {
     borderColor: "border-orange-200 dark:border-orange-800",
     emoji: "😶",
   },
-};
+}
 
 const PublicJournalEntry = () => {
-  const navigate = useNavigate();
-  const { slug } = useParams();
-  const location = useLocation();
-  const { darkMode } = useDarkMode();
-  const { modals, openLoginModal } = AuthModals({ darkMode });
+  const navigate = useNavigate()
+  const { slug } = useParams()
+  const location = useLocation()
+  const { darkMode } = useDarkMode()
+  const { modals, openLoginModal } = AuthModals({ darkMode })
 
   // Use PublicJournals context for single journal fetching and state
-  const { fetchSingleJournalBySlug, singleJournalLoading, singleJournalError } =
-    usePublicJournals();
+  const { fetchSingleJournalBySlug, singleJournalLoading, singleJournalError } = usePublicJournals()
 
-  const [journal, setJournal] = useState(location.state?.journal || null);
-  const [authorProfile, setAuthorProfile] = useState(null);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [subscribing, setSubscribing] = useState(false);
+  const [journal, setJournal] = useState(location.state?.journal || null)
+  const [authorProfile, setAuthorProfile] = useState(null)
+  const [isLiked, setIsLiked] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [subscribing, setSubscribing] = useState(false)
 
   // Memoize current user
   const currentUser = useMemo(() => {
     try {
-      const userData = sessionStorage.getItem("user");
-      return userData ? JSON.parse(userData) : null;
+      const userData = sessionStorage.getItem("user")
+      return userData ? JSON.parse(userData) : null
     } catch (error) {
-      console.error("Error parsing user data:", error);
-      return null;
+      console.error("Error parsing user data:", error)
+      return null
     }
-  }, []);
+  }, [])
 
-  const isLoggedIn = useMemo(() => !!currentUser, [currentUser]);
+  const isLoggedIn = useMemo(() => !!currentUser, [currentUser])
 
   // Use the context's fetchSingleJournalBySlug
   const loadJournal = useCallback(async () => {
     if (journal && journal.slug === slug) {
-      return;
+      return
     }
     try {
-      const entry = await fetchSingleJournalBySlug(slug);
-      setJournal(entry);
+      const entry = await fetchSingleJournalBySlug(slug)
+      setJournal(entry)
     } catch (err) {
-      console.error("Error loading journal:", err);
+      console.error("Error loading journal:", err)
     }
-  }, [slug, fetchSingleJournalBySlug, journal]);
+  }, [slug, fetchSingleJournalBySlug, journal])
 
   const fetchAuthorProfile = useCallback(async () => {
-    if (!journal?.authorName) return;
+    if (!journal?.authorName) return
 
     try {
-      const response = await API.get(`/profile/${journal.authorName}`);
-      setAuthorProfile(response.data.profile);
+      const response = await API.get(`/profile/${journal.authorName}`)
+      setAuthorProfile(response.data.profile)
 
       // Check subscription status
       if (currentUser && currentUser._id !== response.data.profile._id) {
-        const subResponse = await API.get(
-          `/subscription-status/${currentUser._id}/${response.data.profile._id}`
-        );
-        setIsSubscribed(subResponse.data.isSubscribed);
+        const subResponse = await API.get(`/subscription-status/${currentUser._id}/${response.data.profile._id}`)
+        setIsSubscribed(subResponse.data.isSubscribed)
       }
     } catch (error) {
-      console.error("Error fetching author profile:", error);
+      console.error("Error fetching author profile:", error)
     }
-  }, [journal?.authorName, currentUser]);
+  }, [journal?.authorName, currentUser])
 
   useEffect(() => {
-    loadJournal();
-  }, [slug, loadJournal]);
+    loadJournal()
+  }, [slug, loadJournal])
 
   useEffect(() => {
-    fetchAuthorProfile();
-  }, [fetchAuthorProfile]);
+    fetchAuthorProfile()
+  }, [fetchAuthorProfile])
 
   useEffect(() => {
     if (journal && currentUser) {
-      setIsLiked(journal.likes?.includes(currentUser._id) || false);
+      setIsLiked(journal.likes?.includes(currentUser._id) || false)
     }
-  }, [journal, currentUser]);
+  }, [journal, currentUser])
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const hash = window.location.hash;
+    if (hash === "#comments") {
+      let attempts = 0;
+      const maxAttempts = 10;
+      const intervalTime = 100; // milliseconds
+
+      const scrollInterval = setInterval(() => {
+        const el = document.getElementById("comments");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+          clearInterval(scrollInterval);
+        } else if (attempts >= maxAttempts) {
+          clearInterval(scrollInterval);
+        }
+        attempts++;
+      }, intervalTime);
+    }
   }, []);
 
   const handleLike = useCallback(async () => {
     if (!currentUser) {
-      openLoginModal();
-      return;
+      openLoginModal()
+      return
     }
 
-    if (!journal) return;
+    if (!journal) return
 
     try {
       const response = await API.post(`/journals/${journal._id}/like`, {
         userId: currentUser._id,
-      });
+      })
 
       setJournal((prev) => ({
         ...prev,
@@ -184,55 +184,53 @@ const PublicJournalEntry = () => {
           ? [...prev.likes, currentUser._id]
           : prev.likes.filter((id) => id !== currentUser._id),
         likeCount: response.data.likeCount,
-      }));
-      setIsLiked(response.data.isLiked);
+      }))
+      setIsLiked(response.data.isLiked)
     } catch (error) {
-      console.error("Error liking journal:", error);
+      console.error("Error liking journal:", error)
     }
-  }, [currentUser, journal, openLoginModal]);
+  }, [currentUser, journal, openLoginModal])
 
   const handleShare = useCallback(() => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(window.location.href)
     // You could add a toast notification here
-  }, []);
+  }, [])
 
   const handleSubscribe = useCallback(async () => {
-    if (!currentUser || !authorProfile) return;
+    if (!currentUser || !authorProfile) return
 
     try {
-      setSubscribing(true);
+      setSubscribing(true)
       const response = await API.post("/subscribe", {
         subscriberId: currentUser._id,
         targetUserId: authorProfile._id,
-      });
-      setIsSubscribed(response.data.subscribed);
+      })
+      setIsSubscribed(response.data.subscribed)
 
       setAuthorProfile((prev) => ({
         ...prev,
-        subscriberCount:
-          prev.subscriberCount + (response.data.subscribed ? 1 : -1),
-      }));
+        subscriberCount: prev.subscriberCount + (response.data.subscribed ? 1 : -1),
+      }))
     } catch (error) {
-      console.error("Error handling subscription:", error);
+      console.error("Error handling subscription:", error)
     } finally {
-      setSubscribing(false);
+      setSubscribing(false)
     }
-  }, [currentUser, authorProfile]);
+  }, [currentUser, authorProfile])
 
   const processContent = useCallback((content) => {
-    if (!content) return "No content available.";
+    if (!content) return "No content available."
 
     try {
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = content;
+      const tempDiv = document.createElement("div")
+      tempDiv.innerHTML = content
 
-      const images = tempDiv.querySelectorAll("img");
+      const images = tempDiv.querySelectorAll("img")
       images.forEach((img) => {
-        if (img.parentElement.classList.contains("full-width-image-container"))
-          return;
+        if (img.parentElement.classList.contains("full-width-image-container")) return
 
-        const container = document.createElement("div");
-        container.className = "full-width-image-container";
+        const container = document.createElement("div")
+        container.className = "full-width-image-container"
         container.style.cssText = `
            position: relative;
            display: block;
@@ -242,7 +240,7 @@ const PublicJournalEntry = () => {
            overflow: hidden;
            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
            border: 1px solid rgba(156, 163, 175, 0.2);
-         `;
+         `
 
         img.style.cssText = `
            width: 100%;
@@ -251,46 +249,43 @@ const PublicJournalEntry = () => {
            object-fit: contain;
            max-height: 600px;
            margin: 0 auto;
-         `;
+         `
 
-        img.parentNode.insertBefore(container, img);
-        container.appendChild(img);
-      });
+        img.parentNode.insertBefore(container, img)
+        container.appendChild(img)
+      })
 
-      return tempDiv.innerHTML;
+      return tempDiv.innerHTML
     } catch (error) {
-      console.error("Error processing content:", error);
-      return content;
+      console.error("Error processing content:", error)
+      return content
     }
-  }, []);
+  }, [])
 
   const moodStyle = useMemo(
-    () =>
-      journal?.mood
-        ? moodStyles[journal.mood] || moodStyles.default
-        : moodStyles.default,
-    [journal?.mood]
-  );
+    () => (journal?.mood ? moodStyles[journal.mood] || moodStyles.default : moodStyles.default),
+    [journal?.mood],
+  )
 
   const currentTheme = useMemo(() => {
     try {
-      return getThemeDetails(journal?.theme);
+      return getThemeDetails(journal?.theme)
     } catch (error) {
-      console.error("Error getting theme details:", error);
-      return { icon: "📝", dateIcon: "📅" };
+      console.error("Error getting theme details:", error)
+      return { icon: "📝", dateIcon: "📅" }
     }
-  }, [journal?.theme]);
+  }, [journal?.theme])
 
   const readingTime = useMemo(() => {
-    if (!journal?.content) return 0;
-    const wordCount = journal.content.split(" ").length;
-    return Math.max(1, Math.ceil(wordCount / 200));
-  }, [journal?.content]);
+    if (!journal?.content) return 0
+    const wordCount = journal.content.split(" ").length
+    return Math.max(1, Math.ceil(wordCount / 200))
+  }, [journal?.content])
 
   const canSubscribe = useMemo(
     () => currentUser && authorProfile && currentUser._id !== authorProfile._id,
-    [currentUser, authorProfile]
-  );
+    [currentUser, authorProfile],
+  )
 
   if (singleJournalLoading) {
     return (
@@ -300,14 +295,12 @@ const PublicJournalEntry = () => {
           <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 max-w-sm w-full mx-4">
             <div className="flex items-center justify-center space-x-3">
               <Loader2 className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400" />
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Loading journal...
-              </p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">Loading journal...</p>
             </div>
           </div>
         </div>
       </>
-    );
+    )
   }
 
   if (singleJournalError) {
@@ -319,12 +312,8 @@ const PublicJournalEntry = () => {
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">⚠️</span>
             </div>
-            <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">
-              Error Loading Journal
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
-              {singleJournalError}
-            </p>
+            <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">Error Loading Journal</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">{singleJournalError}</p>
             <button
               onClick={() => navigate(-1)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -334,7 +323,7 @@ const PublicJournalEntry = () => {
           </div>
         </div>
       </>
-    );
+    )
   }
 
   if (!journal) {
@@ -346,26 +335,20 @@ const PublicJournalEntry = () => {
             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">📝</span>
             </div>
-            <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">
-              Journal Not Found
-            </h2>
+            <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">Journal Not Found</h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
               This journal entry doesn't exist or has been removed.
             </p>
           </div>
         </div>
       </>
-    );
+    )
   }
 
   return (
     <>
       {isLoggedIn ? <Navbar /> : <LandingNavbar />}
-      <title>
-        {journal.title
-          ? `${journal.title} | Starlit Journals`
-          : "Starlit Journals"}
-      </title>
+      <title>{journal.title ? `${journal.title} | Starlit Journals` : "Starlit Journals"}</title>
       <meta
         name="description"
         content={
@@ -380,43 +363,30 @@ const PublicJournalEntry = () => {
       />
       <meta name="keywords" content={journal.tags?.join(", ") || "journal, writing, reflection"} />
       <meta property="og:title" content={journal.title || "Starlit Journals"} />
-      <meta property="og:description" content={
-        journal.content
-          ? journal.content
-              .replace(/<[^>]+>/g, "")
-              .replace(/\s+/g, " ")
-              .trim()
-              .slice(0, 160) + "..."
-          : "Read inspiring journal entries on Starlit Journals."
-      } />
+      <meta
+        property="og:description"
+        content={
+          journal.content
+            ? journal.content
+                .replace(/<[^>]+>/g, "")
+                .replace(/\s+/g, " ")
+                .trim()
+                .slice(0, 160) + "..."
+            : "Read inspiring journal entries on Starlit Journals."
+        }
+      />
       <meta property="og:type" content="article" />
       <meta property="og:site_name" content="Starlit Journals" />
 
       <div
         style={{ backgroundAttachment: "fixed" }}
-        className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${getCardClass(
-          journal.theme
-        )}`}
+        className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${getCardClass(journal.theme)}`}
       >
-        {/* Back Button */}
-        {/* <div className="bg-white/80 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <div
-              //without re render go back to previous state
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Public Journals</span>
-            </div>
-          </div>
-        </div> */}
-
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <article className="bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <article className="bg-white/70 dark:bg-black/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {/* Header Section */}
                 <div className="p-6 sm:p-8 border-b border-gray-200 dark:border-gray-700">
                   {/* Title */}
@@ -491,9 +461,7 @@ const PublicJournalEntry = () => {
                           isLiked ? "fill-red-500 text-red-500" : ""
                         }`}
                       />
-                      <span className="text-sm font-medium">
-                        {journal.likes?.length || 0}
-                      </span>
+                      <span className="text-sm font-medium">{journal.likes?.length || 0}</span>
                     </button>
 
                     <button
@@ -517,6 +485,9 @@ const PublicJournalEntry = () => {
                     />
                   </div>
                 </div>
+
+                {/* Comments Section */}
+                <Comments journalId={journal._id} currentUser={currentUser} onLoginRequired={openLoginModal} />
               </article>
             </div>
 
@@ -524,10 +495,8 @@ const PublicJournalEntry = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-24">
                 {authorProfile && (
-                  <div className="bg-white/85 dark:bg-gray-800/85 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                    <h3 className="text-lg font-semibold mb-6 text-gray-900 dark:text-gray-100">
-                      About the Author
-                    </h3>
+                  <div className="bg-white/70 dark:bg-black/70 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 className="text-lg font-semibold mb-6 text-gray-900 dark:text-gray-100">About the Author</h3>
 
                     {/* Author Info */}
                     <Link
@@ -537,9 +506,7 @@ const PublicJournalEntry = () => {
                       <div className="flex items-start gap-4">
                         {/* Avatar */}
                         <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-md">
-                          {authorProfile.anonymousName
-                            ?.charAt(0)
-                            .toUpperCase() || "A"}
+                          {authorProfile.anonymousName?.charAt(0).toUpperCase() || "A"}
                         </div>
 
                         {/* Details */}
@@ -567,9 +534,7 @@ const PublicJournalEntry = () => {
                         <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                           {authorProfile.subscriberCount || 0}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Subscribers
-                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Subscribers</p>
                       </div>
 
                       <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -579,9 +544,7 @@ const PublicJournalEntry = () => {
                         <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                           {authorProfile.currentStreak || 0}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Day Streak
-                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Day Streak</p>
                       </div>
                     </div>
 
@@ -590,13 +553,10 @@ const PublicJournalEntry = () => {
                         <Calendar className="w-4 h-4" />
                         <span>
                           Joined{" "}
-                          {new Date(authorProfile.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "long",
-                            }
-                          )}
+                          {new Date(authorProfile.createdAt).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                          })}
                         </span>
                       </div>
                     </div>
@@ -611,9 +571,7 @@ const PublicJournalEntry = () => {
                             isSubscribed
                               ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                               : "bg-red-500 text-white hover:bg-red-600 shadow-lg hover:shadow-xl"
-                          } ${
-                            subscribing ? "opacity-50 cursor-not-allowed" : ""
-                          }`}
+                          } ${subscribing ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                           {subscribing ? (
                             <div className="flex items-center justify-center gap-2">
@@ -649,8 +607,6 @@ const PublicJournalEntry = () => {
             color: rgb(17, 24, 39);
             word-wrap: break-word;
             overflow-wrap: break-word;
-            font-size: 1.125rem;
-            padding: 2rem;
           }
 
           .dark .journal-content-display {
@@ -658,35 +614,36 @@ const PublicJournalEntry = () => {
           }
 
           .journal-content-display p {
-            margin: 1.5rem 0;
+            margin: 1.25rem 0;
             color: inherit;
           }
 
           .journal-content-display h1,
           .journal-content-display h2,
           .journal-content-display h3 {
-            font-weight: 600;
-            margin: 2.5rem 0 1.5rem 0;
+            font-weight: 700;
+            margin: 2rem 0 1rem 0;
             color: inherit;
             word-wrap: break-word;
-            line-height: 1.3;
-            letter-spacing: -0.01em;
           }
 
           .journal-content-display h1 {
-            font-size: 2.25rem;
+            font-size: 2rem;
+            line-height: 1.2;
           }
 
           .journal-content-display h2 {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
+            line-height: 1.3;
           }
 
           .journal-content-display h3 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
+            line-height: 1.4;
           }
 
           .journal-content-display strong {
-            font-weight: 600;
+            font-weight: 700;
             color: inherit;
           }
 
@@ -696,12 +653,11 @@ const PublicJournalEntry = () => {
 
           .journal-content-display u {
             text-decoration: underline;
-            text-underline-offset: 0.2em;
           }
 
           .journal-content-display ul,
           .journal-content-display ol {
-            margin: 1.5rem 0;
+            margin: 1.25rem 0;
             padding-left: 1.5rem;
           }
 
@@ -714,7 +670,7 @@ const PublicJournalEntry = () => {
           }
 
           .journal-content-display li {
-            margin: 0.75rem 0;
+            margin: 0.5rem 0;
             line-height: 1.7;
           }
 
@@ -727,51 +683,53 @@ const PublicJournalEntry = () => {
           }
 
           .journal-content-display blockquote {
-            border-left: 4px solid var(--accent);
+            border-left: 4px solid #5B8A9E;
             padding-left: 1.5rem;
             margin: 2rem 0;
             font-style: italic;
-            color: var(--text-secondary);
-            font-size: 1.125rem;
+            background: rgba(59, 130, 246, 0.05);
+            padding: 1.5rem;
+            position: relative;
           }
 
           .journal-content-display code {
-            background-color: var(--bg-hover);
+            background: rgba(156, 163, 175, 0.1);
             padding: 0.25rem 0.5rem;
             border-radius: 0.375rem;
-            font-family: "SF Mono", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
             font-size: 0.875rem;
+            border: 1px solid rgba(156, 163, 175, 0.2);
+            word-break: break-all;
           }
 
           .journal-content-display pre {
-            background-color: var(--bg-hover);
+            background: rgba(156, 163, 175, 0.1);
             padding: 1.5rem;
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             overflow-x: auto;
-            margin: 2rem 0;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(156, 163, 175, 0.2);
           }
 
           .journal-content-display pre code {
             background: none;
             padding: 0;
+            border: none;
+            word-break: normal;
           }
 
           .journal-content-display a {
-            color: var(--accent);
+            color: #5B8A9E;
             text-decoration: underline;
-            text-underline-offset: 0.2em;
+            transition: opacity 0.2s;
+            word-break: break-all;
           }
 
           .journal-content-display a:hover {
-            text-decoration: none;
+            opacity: 0.8;
           }
 
-          .journal-content-display img {
-            border-radius: 1rem;
-            margin: 2.5rem 0;
-            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
-          }
-
+          /* Full-width image handling */
           .journal-content-display .full-width-image-container {
             position: relative;
             display: block;
@@ -792,16 +750,50 @@ const PublicJournalEntry = () => {
             border: none !important;
             width: 100% !important;
             height: auto !important;
-            object-fit: contain !important;
+            object-fit: cover !important;
             padding: 0 !important;
             max-height: 400px !important;
           }
 
+          /* Recommendation content styling */
+          .recommendation-content {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.4;
+          }
+
+          .recommendation-content * {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: inherit;
+            font: inherit;
+            vertical-align: baseline;
+          }
+
+          .recommendation-content img,
+          .recommendation-content figure {
+            display: none;
+          }
+
+          .line-clamp-2 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+          }
+
+          /* Dark mode adjustments for images */
           .dark .journal-content-display .full-width-image-container {
             border-color: rgba(75, 85, 99, 0.5);
             box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.2);
           }
 
+          /* Responsive adjustments */
           @media (max-width: 768px) {
             .journal-content-display .full-width-image-container {
               margin: 16px 0 !important;
@@ -811,7 +803,7 @@ const PublicJournalEntry = () => {
       </div>
       {modals}
     </>
-  );
-};
+  )
+}
 
-export default PublicJournalEntry;
+export default PublicJournalEntry

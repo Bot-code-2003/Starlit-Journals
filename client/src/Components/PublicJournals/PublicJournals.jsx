@@ -284,7 +284,7 @@ const PublicJournals = () => {
         />
       )}
 
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="mt-16 min-h-screen text-[var(--text-primary)] bg-[var(--bg-primary)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           <Header
             showFollowingOnly={showFollowingOnly}

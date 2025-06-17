@@ -18,6 +18,7 @@ import HowItWorks from "./HowItWorks";
 import AuthModals from "./AuthModals";
 import axios from "axios";
 import Home from "../../assets/home3.png";
+import PublicJournalsShowcase from "./PublicJournalsShowcase";
 
 const LandingPage = () => {
   const API = axios.create({
@@ -245,19 +246,15 @@ const LandingPage = () => {
             </p>
             <div className="mt-10">
               <button
-                className={`px-6 py-3 ${
-                  darkMode
-                    ? "bg-[#5999a8] text-white"
-                    : "bg-[#1A1A1A] text-white"
-                } hover:opacity-90 transition-opacity z-[999] w-full sm:w-fit rounded-md flex items-center gap-2 group border-2 border-transparent`}
+                className="px-8 py-4 bg-[var(--accent)] text-white rounded-2xl hover:bg-[var(--accent-hover)] transition-all duration-500 ease-in-out font-medium shadow-xl hover:shadow-2xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] inline-flex items-center gap-3 w-full sm:w-fit"
                 onClick={openLoginModal}
                 aria-label="Begin your journaling journey"
               >
                 <span className="flex items-center gap-2">
                   Start Free – Get 50 Coins!
                   <ArrowRight
-                    size={16}
-                    className="group-hover:translate-x-1 transition-transform"
+                    size={20}
+                    className="transition-transform duration-500 ease-in-out group-hover:translate-x-1"
                   />
                 </span>
               </button>
@@ -286,10 +283,10 @@ const LandingPage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="z-10 flex flex-col items-center gap-24 max-w-7xl">
+      <main className="z-10 flex flex-col items-center max-w-7xl">
         {/* Stats Section */}
         <section
-          className="w-full px-1 sm:px-6"
+          className="w-full px-1 sm:px-6 sm:pb-16"
           aria-labelledby="stats-heading"
         >
           <h2 id="stats-heading" className="sr-only">
@@ -356,6 +353,9 @@ const LandingPage = () => {
           setShowLoginModal={openLoginModal}
           setShowSignupModal={openSignupModal}
         />
+
+        {/* Public Journals Showcase */}
+        <PublicJournalsShowcase />
 
         {/* How It Works Section */}
         {/* <HowItWorks setShowLoginModal={openLoginModal} /> */}

@@ -73,10 +73,10 @@ const LoginModal = ({ isOpen, onClose, onSwitchToSignup, darkMode }) => {
         <div className="relative flex flex-col lg:flex-row min-h-[500px]">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full transition-colors z-10"
+            className="absolute top-4 right-4 p-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-colors z-10"
             aria-label="Close login modal"
           >
-            <X size={20} />
+            <X size={20} className="text-white"/>
           </button>
 
           {/* Background Image Section */}
